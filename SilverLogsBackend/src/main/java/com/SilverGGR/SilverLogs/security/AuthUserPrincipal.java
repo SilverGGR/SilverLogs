@@ -7,34 +7,40 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 // Adapter zwischen UserDetails und Users
 public class AuthUserPrincipal implements UserDetails {
 
-    private final AuthUser authUser;
+    private final String username;
+    private final String password;
+    private final Collection<GrantedAuthority> authorities;
 
-    public AuthUserPrincipal(AuthUser authUser) {
-        this.authUser = authUser;
+    // Profilbild wird nicht im Principal gespeichert
+    // nur die für die Authentifizierung notwendigen Daten
+
+    public AuthUserPrincipal(AuthUser user) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().toString()));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(authUser.getRole().name()));
-
         return authorities;
     }
 
 
+
     @Override
     public String getPassword() {
-        return authUser.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return authUser.getUsername();
+        return username;
     }
 
     // Zeitlich begrenzte Benutzerkonten

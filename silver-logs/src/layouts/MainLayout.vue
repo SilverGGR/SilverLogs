@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          SilverLogs
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>Eier Meier</div>
       </q-toolbar>
     </q-header>
 
@@ -36,6 +36,18 @@
           :key="link.title"
           v-bind="link"
         />
+        <q-btn
+          flat
+          color="primary"
+          label="Home"
+          to="/"
+        />
+        <q-btn
+          flat
+          color="primary"
+          label="Profil"
+          to="/profile"
+        />
 
         <token-info/>
       </q-list>
@@ -54,46 +66,16 @@ import TokenInfo from 'components/TokenInfo.vue';
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
+    title: 'Home',
+    caption: 'Zur Startseite',
     icon: 'school',
-    link: 'https://quasar.dev'
+    link: 'http://localhost:9000'
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
+    title: 'Profil',
+    caption: 'Profil anzeigen und bearbeiten',
+    icon: 'school',
+    link: 'http://localhost:9000/profile'
   }
 ]
 

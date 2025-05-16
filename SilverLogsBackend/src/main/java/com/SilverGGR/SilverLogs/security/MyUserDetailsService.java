@@ -2,6 +2,7 @@ package com.SilverGGR.SilverLogs.security;
 
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +16,7 @@ public class MyUserDetailsService implements UserDetailsService {
     private final AuthUserRepository authUserRepo;
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         AuthUser authUser = authUserRepo.findByUsername(username);

@@ -10,7 +10,7 @@
               </q-card-section>
 
               <q-card-section>
-                <q-form @submit="onSubmit" class="q-gutter-md">
+                <q-form @submit.prevent="onSubmit" class="q-gutter-md">
                   <q-input
                     square
                     v-model="username"
@@ -41,20 +41,20 @@
                       />
                     </template>
                   </q-input>
+
+                  <div class="q-px-lg">
+                    <q-btn
+                      unelevated
+                      size="lg"
+                      color="primary"
+                      class="full-width"
+                      label="Login"
+                      type="Submit"
+                      :loading="loading"
+                    />
+                  </div>
                 </q-form>
               </q-card-section>
-
-              <q-card-actions class="q-px-lg">
-                <q-btn
-                  unelevated
-                  size="lg"
-                  color="primary"
-                  class="full-width"
-                  label="Login"
-                  @click="onSubmit"
-                  :loading="loading"
-                />
-              </q-card-actions>
 
               <q-card-section class="text-center q-pa-sm">
                 <p class="text-grey-6">Noch kein Account?</p>

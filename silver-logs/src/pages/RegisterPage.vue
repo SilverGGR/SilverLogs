@@ -11,7 +11,7 @@
               </q-card-section>
 
               <q-card-section>
-                <q-form @submit="onSubmit" class="q-gutter-md">
+                <q-form @submit.prevent="onSubmit" class="q-gutter-md">
                   <q-input
                     square
                     v-model="username"
@@ -31,7 +31,7 @@
                     label="Passwort"
                     :rules="[
                       val => !!val || 'Passwort ist erforderlich',
-                      val => val.length >= 6 || 'Passwort muss mindestens 6 Zeichen lang sein'
+                      val => val.length >= 1 || 'Passwort muss mindestens 1 Zeichen lang sein'
                     ]"
                   >
                     <template v-slot:prepend>
@@ -67,20 +67,20 @@
                       />
                     </template>
                   </q-input>
+
+                  <div class="q-px-lg">
+                    <q-btn
+                      unelevated
+                      size="lg"
+                      color="primary"
+                      class="full-width"
+                      label="Registrieren"
+                      type="onSubmit"
+                      :loading="loading"
+                    />
+                  </div>
                 </q-form>
               </q-card-section>
-
-              <q-card-actions class="q-px-lg">
-                <q-btn
-                  unelevated
-                  size="lg"
-                  color="primary"
-                  class="full-width"
-                  label="Registrieren"
-                  @click="onSubmit"
-                  :loading="loading"
-                />
-              </q-card-actions>
 
               <q-card-section class="text-center q-pa-sm">
                 <p class="text-grey-6">Bereits registriert?</p>

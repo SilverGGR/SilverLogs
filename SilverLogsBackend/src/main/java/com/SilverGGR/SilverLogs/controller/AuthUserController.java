@@ -41,5 +41,4 @@ public class AuthUserController {
                     .body("Registration failed: " + e.getMessage());
         }
     }
-
 }

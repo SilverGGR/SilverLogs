@@ -12,6 +12,7 @@
 
               <q-card-section>
                 <q-form @submit.prevent="onSubmit" class="q-gutter-md">
+                  <!-- USERNAME -->
                   <q-input
                     square
                     v-model="username"
@@ -24,6 +25,46 @@
                     </template>
                   </q-input>
 
+                  <!-- FIRSTNAME -->
+                  <q-input
+                    square
+                    v-model="firstname"
+                    type="text"
+                    label="Firstname"
+                    :rules="[val => !!val || 'Firstname ist erforderlich']"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="person" />
+                    </template>
+                  </q-input>
+
+                  <!-- LASTNAME -->
+                  <q-input
+                    square
+                    v-model="lastname"
+                    type="text"
+                    label="Lastname"
+                    :rules="[val => !!val || 'Lastname ist erforderlich']"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="person" />
+                    </template>
+                  </q-input>
+
+                  <!-- EMAIL -->
+                  <q-input
+                    square
+                    v-model="email"
+                    type="text"
+                    label="E-Mail"
+                    :rules="[val => !!val || 'E-Mail ist erforderlich']"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="mdi-at" />
+                    </template>
+                  </q-input>
+
+                  <!-- PASSWORD -->
                   <q-input
                     square
                     v-model="password"
@@ -46,6 +87,7 @@
                     </template>
                   </q-input>
 
+                  <!-- CONFIRM PASSWORD -->
                   <q-input
                     square
                     v-model="confirmPassword"
@@ -111,6 +153,9 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const username = ref('');
+const firstname = ref('');
+const lastname = ref('');
+const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const isPwd = ref(true);

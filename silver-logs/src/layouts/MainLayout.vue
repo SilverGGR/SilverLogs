@@ -36,6 +36,8 @@
           :key="link.title"
           v-bind="link"
         />
+
+        <token-info/>
       </q-list>
     </q-drawer>
 
@@ -48,6 +50,7 @@
 <script setup>
 import { ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
+import TokenInfo from 'components/TokenInfo.vue';
 
 const linksList = [
   {

@@ -1,123 +1,139 @@
-
 <template>
   <q-layout>
     <q-page-container>
       <div class="window-height window-width row justify-center items-center">
         <div class="column q-pa-lg">
           <div class="row">
-            <q-card square class="shadow-24" style="width: 300px">
+            <q-card square class="shadow-24 register-card">
               <q-card-section class="bg-primary text-white">
                 <h4 class="text-h5 text-white q-my-sm">Registrieren</h4>
               </q-card-section>
 
-              <q-card-section>
-                <q-form @submit.prevent="onSubmit" class="q-gutter-md">
-                  <!-- USERNAME -->
-                  <q-input
-                    square
-                    v-model="username"
-                    type="text"
-                    label="Username"
-                    :rules="[val => !!val || 'Username ist erforderlich']"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="person" />
-                    </template>
-                  </q-input>
+              <q-card-section style="padding: 30px">
+                <q-form @submit.prevent="onSubmit">
+                  <div class="row q-col-gutter-md">
+                    <!-- LINKE SPALTE -->
+                    <div class="col-12 col-md-6">
+                      <!-- USERNAME -->
+                      <q-input
+                        square
+                        v-model="username"
+                        type="text"
+                        label="Username"
+                        class="q-mb-md"
+                        :rules="[val => !!val || 'Username ist erforderlich']"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="account_circle" />
+                        </template>
+                      </q-input>
 
-                  <!-- FIRSTNAME -->
-                  <q-input
-                    square
-                    v-model="firstname"
-                    type="text"
-                    label="Firstname"
-                    :rules="[val => !!val || 'Firstname ist erforderlich']"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="person" />
-                    </template>
-                  </q-input>
+                      <!-- FIRSTNAME -->
+                      <q-input
+                        square
+                        v-model="firstname"
+                        type="text"
+                        label="Vorname"
+                        class="q-mb-md"
+                        :rules="[val => !!val || 'Vorname ist erforderlich']"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="person" />
+                        </template>
+                      </q-input>
 
-                  <!-- LASTNAME -->
-                  <q-input
-                    square
-                    v-model="lastname"
-                    type="text"
-                    label="Lastname"
-                    :rules="[val => !!val || 'Lastname ist erforderlich']"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="person" />
-                    </template>
-                  </q-input>
+                      <!-- LASTNAME -->
+                      <q-input
+                        square
+                        v-model="lastname"
+                        type="text"
+                        label="Nachname"
+                        class="q-mb-md"
+                        :rules="[val => !!val || 'Nachname ist erforderlich']"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="person" />
+                        </template>
+                      </q-input>
+                    </div>
 
-                  <!-- EMAIL -->
-                  <q-input
-                    square
-                    v-model="email"
-                    type="text"
-                    label="E-Mail"
-                    :rules="[val => !!val || 'E-Mail ist erforderlich']"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="mdi-at" />
-                    </template>
-                  </q-input>
+                    <!-- RECHTE SPALTE -->
+                    <div class="col-12 col-md-6">
+                      <!-- EMAIL -->
+                      <q-input
+                        square
+                        v-model="email"
+                        type="email"
+                        label="E-Mail"
+                        class="q-mb-md"
+                        :rules="[
+                          val => !!val || 'E-Mail ist erforderlich',
+                          val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Gültige E-Mail eingeben'
+                        ]"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="email" />
+                        </template>
+                      </q-input>
 
-                  <!-- PASSWORD -->
-                  <q-input
-                    square
-                    v-model="password"
-                    :type="isPwd ? 'password' : 'text'"
-                    label="Passwort"
-                    :rules="[
-                      val => !!val || 'Passwort ist erforderlich',
-                      val => val.length >= 1 || 'Passwort muss mindestens 1 Zeichen lang sein'
-                    ]"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="lock" />
-                    </template>
-                    <template v-slot:append>
-                      <q-icon
-                        :name="isPwd ? 'visibility_off' : 'visibility'"
-                        class="cursor-pointer"
-                        @click="isPwd = !isPwd"
-                      />
-                    </template>
-                  </q-input>
+                      <!-- PASSWORD -->
+                      <q-input
+                        square
+                        v-model="password"
+                        :type="isPwd ? 'password' : 'text'"
+                        label="Passwort"
+                        class="q-mb-md"
+                        :rules="[
+                          val => !!val || 'Passwort ist erforderlich',
+                          val => val.length >= 1 || 'Passwort muss mindestens 1 Zeichen lang sein'
+                        ]"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="lock" />
+                        </template>
+                        <template v-slot:append>
+                          <q-icon
+                            :name="isPwd ? 'visibility_off' : 'visibility'"
+                            class="cursor-pointer"
+                            @click="isPwd = !isPwd"
+                          />
+                        </template>
+                      </q-input>
 
-                  <!-- CONFIRM PASSWORD -->
-                  <q-input
-                    square
-                    v-model="confirmPassword"
-                    :type="isPwdConfirm ? 'password' : 'text'"
-                    label="Passwort bestätigen"
-                    :rules="[
-                      val => !!val || 'Passwortbestätigung ist erforderlich',
-                      val => val === password || 'Passwörter stimmen nicht überein'
-                    ]"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="lock" />
-                    </template>
-                    <template v-slot:append>
-                      <q-icon
-                        :name="isPwdConfirm ? 'visibility_off' : 'visibility'"
-                        class="cursor-pointer"
-                        @click="isPwdConfirm = !isPwdConfirm"
-                      />
-                    </template>
-                  </q-input>
+                      <!-- CONFIRM PASSWORD -->
+                      <q-input
+                        square
+                        v-model="confirmPassword"
+                        :type="isPwdConfirm ? 'password' : 'text'"
+                        label="Passwort bestätigen"
+                        class="q-mb-md"
+                        :rules="[
+                          val => !!val || 'Passwortbestätigung ist erforderlich',
+                          val => val === password || 'Passwörter stimmen nicht überein'
+                        ]"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="enhanced_encryption" />
+                        </template>
+                        <template v-slot:append>
+                          <q-icon
+                            :name="isPwdConfirm ? 'visibility_off' : 'visibility'"
+                            class="cursor-pointer"
+                            @click="isPwdConfirm = !isPwdConfirm"
+                          />
+                        </template>
+                      </q-input>
+                    </div>
+                  </div>
 
-                  <div class="q-px-lg">
+                  <div style="width: 50%; margin-left: 25%">
                     <q-btn
                       unelevated
                       size="lg"
                       color="primary"
                       class="full-width"
                       label="Registrieren"
-                      type="onSubmit"
+                      type="submit"
                       :loading="loading"
                     />
                   </div>
@@ -131,7 +147,6 @@
                   color="primary"
                   label="Login"
                   to="/login"
-                  class="q-ml-sm"
                 />
               </q-card-section>
             </q-card>
@@ -163,7 +178,12 @@ const isPwdConfirm = ref(true);
 const loading = ref(false);
 
 const onSubmit = async () => {
-  if (!username.value || !password.value || password.value !== confirmPassword.value) {
+  if (!username.value ||
+    !firstname.value ||
+    !lastname.value ||
+    !email.value ||
+    !password.value ||
+    password.value !== confirmPassword.value) {
     return;
   }
 
@@ -171,6 +191,9 @@ const onSubmit = async () => {
   try {
     const response = await api.post('/api/auth/register', {
       username: username.value,
+      firstname: firstname.value,
+      lastname: lastname.value,
+      email: email.value,
       password: password.value
     });
 
@@ -200,9 +223,16 @@ const onSubmit = async () => {
 </script>
 
 <style lang="scss" scoped>
-.q-card {
-  width: 360px;
+.register-card {
+  width: 650px;
+  max-width: 95vw;
 
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+.q-card {
   @media (max-width: 400px) {
     width: 100%;
   }

@@ -1,7 +1,7 @@
 <template>
   <q-layout>
     <q-page-container>
-      <div class="window-height window-width row justify-center items-center">
+      <div class="window-height window-width row justify-center items-center ">
         <div class="column q-pa-lg">
           <div class="row">
             <q-card square class="shadow-24" style="width: 300px">
@@ -19,7 +19,7 @@
                     :rules="[val => !!val || 'Username ist erforderlich']"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="person" />
+                      <q-icon name="account_circle" />
                     </template>
                   </q-input>
 
@@ -63,7 +63,6 @@
                   color="primary"
                   label="Registrieren"
                   to="/register"
-                  class="q-ml-sm"
                 />
               </q-card-section>
             </q-card>

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="IHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -9,6 +9,7 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
+          :class="{ 'rotate-icon': leftDrawerOpen}"
         />
 
         <q-toolbar-title>
@@ -85,3 +86,14 @@ function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 </script>
+
+<style>
+.rotate-icon .q-icon {
+  transition: transform 0.3s ease-in-out;
+  transform: rotate(-90deg);
+}
+
+.q-icon {
+  transition: transform 0.3s ease-in-out;
+}
+</style>

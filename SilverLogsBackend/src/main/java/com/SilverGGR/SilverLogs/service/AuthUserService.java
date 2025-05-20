@@ -1,6 +1,7 @@
 package com.SilverGGR.SilverLogs.service;
 
 import com.SilverGGR.SilverLogs.entity.AuthUser;
+import com.SilverGGR.SilverLogs.enums.Role;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
 import com.SilverGGR.SilverLogs.security.JWTService;
 import com.SilverGGR.SilverLogs.security.MyUserDetailsService;
@@ -119,5 +120,27 @@ public class AuthUserService {
         return ResponseEntity.ok("Profil erfolgreich aktualisiert");
     }
 
-
+    public String setup() {
+        if (authUserRepo.count() > 0) {
+            return "Database is not empty";
+        } else {
+            AuthUser adminUser = new AuthUser();
+            AuthUser user = new AuthUser();
+            user.setUsername("user");
+            user.setFirstname("Erster");
+            user.setLastname("Guy");
+            user.setEmail("user@email.com");
+            user.setRole(Role.USER);
+            user.setPassword(encoder.encode("user"));
+            authUserRepo.save(user);
+            adminUser.setUsername("admin");
+            adminUser.setFirstname("Erster");
+            adminUser.setLastname("Dude");
+            adminUser.setEmail("admin@email.com");
+            adminUser.setRole(Role.ADMIN);
+            adminUser.setPassword(encoder.encode("admin"));
+            authUserRepo.save(adminUser);
+            return "Setup successful";
+        }
+    }
 }

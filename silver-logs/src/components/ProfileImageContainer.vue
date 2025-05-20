@@ -439,11 +439,11 @@ const uploadProcessedImage = async (file) => {
       message: 'Profilbild erfolgreich aktualisiert'
     });
 
-    // Bild neu laden und Dialog schließen
-    loadUserImage();
+    // Dialog schließen und Seite neu laden
     cropping.value = false;
     cropperInitialized.value = false;
     removeEventListeners();
+    window.location.reload();
   } catch (error) {
     Notify.create({
       type: 'negative',

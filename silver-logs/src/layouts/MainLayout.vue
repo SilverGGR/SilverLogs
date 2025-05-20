@@ -15,13 +15,12 @@
           SilverLogs
         </q-toolbar-title>
 
-        <div>Eier Meier</div>
+        <UserMenu/>
       </q-toolbar>
     </q-header>
 
     <q-drawer
       v-model="leftDrawerOpen"
-      show-if-above
       bordered
     >
       <q-list>
@@ -63,6 +62,7 @@
 import { ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 import TokenInfo from 'components/TokenInfo.vue';
+import UserMenu from 'components/UserMenu.vue';
 
 const linksList = [
   {

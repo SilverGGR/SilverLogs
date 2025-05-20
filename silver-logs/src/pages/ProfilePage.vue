@@ -45,7 +45,7 @@
                   dense
                 >
                   <template v-slot:prepend>
-                    <q-icon name="badge" />
+                    <q-icon name="person" />
                   </template>
                 </q-input>
               </div>

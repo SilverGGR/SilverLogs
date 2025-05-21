@@ -3,7 +3,7 @@
     <img
       alt="SilverLogs logo"
       src="~assets/LogoScreenshot.png"
-      style="width: 1600px; height: 800px"
+      style="width: 1400px; height: 700px"
     >
   </q-page>
 </template>

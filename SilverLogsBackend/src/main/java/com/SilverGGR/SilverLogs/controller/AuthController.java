@@ -21,26 +21,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody AuthUser authUser) {
-        try {
-            String token = service.verify(authUser);
-            return ResponseEntity.ok(token);
-        } catch (BadCredentialsException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid credentials");
-        }
+        String token = service.verify(authUser);
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody AuthUser authUser) {
-        try {
-            AuthUser registeredUser = service.register(authUser);
-            return ResponseEntity.ok("User registered successfully");
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Registration failed: " + e.getMessage());
-        }
+        AuthUser registeredUser = service.register(authUser);
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @GetMapping("/setup")

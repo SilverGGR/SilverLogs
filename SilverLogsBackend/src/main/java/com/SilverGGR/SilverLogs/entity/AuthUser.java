@@ -31,6 +31,8 @@ public class AuthUser {
     private String firstname;
     private String lastname;
     private String email;
+    private String phone;
+    private String department;
     private String password;
 
     @Lob
@@ -42,13 +44,10 @@ public class AuthUser {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
-    @OneToMany(
-            mappedBy = "authUser",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<Report> reports = new ArrayList<>();
+    // Auszubildende, die diesem Supervisor zugewiesen sind
+    @OneToMany(mappedBy = "supervisor", cascade = CascadeType.ALL)
+    private List<SupervisorApprenticeMapping> supervisedUsers = new ArrayList<>();
+
 
 //    private boolean enabled = true;
 //    private boolean accountNonExpired = true;

@@ -22,7 +22,6 @@
         <q-item clickable v-close-popup>
           <q-item-section @click="router.push('/profile')">Benutzereinstellungen</q-item-section>
         </q-item>
-
         <q-separator />
 
           <q-item class="q-pa-md" style="display: flex; flex-direction: column">

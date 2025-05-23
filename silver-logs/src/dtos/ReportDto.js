@@ -8,7 +8,7 @@ export default class ReportDto {
    * @param {string} extraText        Sonstiges (Urlaub/Krankheit)
    * @param {number} reportNumber     Nummer des Berichts
    * @param {string} department       Abteilung
-   * @param {boolean} submitted        Azubi hat den Bericht abgegeben
+   * @param {boolean} submitted       Azubi hat den Bericht abgegeben
    * @param {boolean} approved        Supervisor hat die Abgabe genehmigt
    * @param {string} comment          Eventuelle Kommentare von Azubi/Supervisor
    */
@@ -21,9 +21,26 @@ export default class ReportDto {
     this.extraText = extraText;
     this.reportNumber = reportNumber;
     this.department = department;
-    this.submited = submitted;
+    this.submitted = submitted;
     this.approved = approved;
     this.rejected = rejected;
     this.comment = comment;
+  }
+
+  static fromObject(obj) {
+    return new ReportDto(
+      obj.weekStart,
+      obj.weekEnd,
+      obj.weekText,
+      obj.instructionText,
+      obj.schoolText,
+      obj.extraText,
+      obj.department,
+      obj.reportNumber,
+      obj.submitted,
+      obj.approved,
+      obj.rejected,
+      obj.comment
+    );
   }
 }

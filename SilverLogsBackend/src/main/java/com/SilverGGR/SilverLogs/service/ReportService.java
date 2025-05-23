@@ -16,15 +16,46 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final AuthUserService authUserService;
 
-    public Report getReportByUserAndDate(LocalDate weekStartDate, String username) {
+    public ReportDto getReportByUserAndDate(LocalDate weekStartDate, String username) {
        Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, weekStartDate);
         if (report == null) {
-            throw new RuntimeException("Kein Report gefunden für Benutzer '" + username + "' und Datum '" + weekStartDate + "'.");
+            ReportDto newReport = new ReportDto();
+
+            newReport.setWeekStart(weekStartDate);
+            newReport.setWeekEnd(weekStartDate.plusDays(6));
+            newReport.setWeekText("");
+            newReport.setInstructionText("");
+            newReport.setSchoolText("");
+            newReport.setExtraText(null);
+//            newReport.setReportNumber(null); //TODO: Ohje
+            newReport.setDepartment(null);
+            newReport.setSubmitted(false);
+            newReport.setApproved(false);
+            newReport.setRejected(false);
+            newReport.setComment(null);
+            return newReport;
         }
-        return report;
+
+        return getReportDto(report);
     }
 
-    public Report getOrCreateReport(ReportDto reportDto, String username) {
+    private static ReportDto getReportDto(Report report) {
+        ReportDto reportDto = new ReportDto();
+        reportDto.setWeekStart(report.getWeekStart());
+        reportDto.setWeekEnd(report.getWeekEnd());
+        reportDto.setWeekText(report.getWeekText());
+        reportDto.setInstructionText(report.getInstructionText());
+        reportDto.setSchoolText(report.getSchoolText());
+        reportDto.setExtraText(report.getExtraText());
+        reportDto.setDepartment(report.getDepartment());
+        reportDto.setSubmitted(report.getSubmitted());
+        reportDto.setApproved(report.getApproved());
+        reportDto.setRejected(report.getRejected());
+        reportDto.setComment(report.getComment());
+        return reportDto;
+    }
+
+    public ReportDto getOrCreateReport(ReportDto reportDto, String username) {
         // Versuche, den bestehenden Report zu laden
         Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, reportDto.getWeekStart());
 
@@ -48,7 +79,8 @@ public class ReportService {
         report.setRejected(reportDto.getRejected());
         report.setComment(reportDto.getComment());
 
-        return saveReport(report);
+        Report savedReport = saveReport(report);
+        return getReportDto(savedReport);
     }
 
     public Report saveReport(Report report) {

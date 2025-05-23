@@ -1,16 +1,18 @@
 package com.SilverGGR.SilverLogs.controller;
 
+import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
 import com.SilverGGR.SilverLogs.security.AuthUserPrincipal;
 import com.SilverGGR.SilverLogs.service.AuthUserService;
+import com.SilverGGR.SilverLogs.service.SupervisorApprenticeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,6 +31,7 @@ import java.util.Map;
 public class AuthUserController {
 
     private final AuthUserService authUserService;
+    private final SupervisorApprenticeService supervisorApprenticeService;
     private final AuthUserRepository userRepository;
 
     @PostMapping("/upload-image")
@@ -77,5 +80,26 @@ public class AuthUserController {
 
         String username = authentication.getName();
         return authUserService.updateProfile(username, updates);
+    }
+
+    @GetMapping("/apprentice/all")
+    public ResponseEntity<AuthUserDto[]> getAllApprentices() {
+        return ResponseEntity.ok(authUserService.getAllApprentice());
+    }
+    @GetMapping("/supervisors/all")
+    public ResponseEntity<AuthUserDto[]> getAllSupervisors() {
+        return ResponseEntity.ok(authUserService.getAllSupervisors());
+    }
+
+    @PostMapping("/set-supervisor")
+    public ResponseEntity<String> setSupervisor(@RequestParam String apprenticeUsername, @RequestParam String supervisorUsername) {
+        supervisorApprenticeService.assignApprenticeToSupervisor(apprenticeUsername, supervisorUsername);
+        return ResponseEntity.ok("Supervisor successfully assigned");
+    }
+
+    @DeleteMapping("/delete-connection")
+    public ResponseEntity<String> deleteConnection(@RequestParam String apprenticeUsername, @RequestParam String supervisorUsername) {
+        supervisorApprenticeService.deleteConnection(apprenticeUsername, supervisorUsername);
+        return ResponseEntity.ok("Supervisor successfully deleted");
     }
 }

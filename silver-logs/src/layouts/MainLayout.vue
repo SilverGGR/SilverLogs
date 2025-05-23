@@ -69,6 +69,12 @@ const linksList = [
     caption: 'Berichte erstellen und bearbeiten',
     icon: 'description',
     link: '/report'
+  },
+  {
+    title: 'Manager',
+    caption: 'Ausbilder und Auszubildende verwalten',
+    icon: 'supervisor_account',
+    link: '/manage-users'
   }
 ]
 

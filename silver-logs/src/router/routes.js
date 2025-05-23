@@ -15,6 +15,10 @@ const routes = [
       {
         path: '/report',
         component: () => import('pages/ReportPage.vue')
+      },
+      {
+        path: '/manage-users',
+        component: () => import('pages/ManageUserPage.vue')
       }
     ]
   },

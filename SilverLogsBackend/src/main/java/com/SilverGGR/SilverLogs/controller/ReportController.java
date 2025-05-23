@@ -25,12 +25,12 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping("/{weekStartDate}")
-    public ResponseEntity<Report> getReportByUserAndDate(@PathVariable LocalDate weekStartDate, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
+    public ResponseEntity<ReportDto> getReportByUserAndDate(@PathVariable LocalDate weekStartDate, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
         return ResponseEntity.ok(reportService.getReportByUserAndDate(weekStartDate, authUserPrincipal.getUsername()));
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Report> saveReport(@RequestBody ReportDto reportDto, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
+    public ResponseEntity<ReportDto> saveReport(@RequestBody ReportDto reportDto, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
         return ResponseEntity.ok(reportService.getOrCreateReport(reportDto, authUserPrincipal.getUsername()));
     }
 }

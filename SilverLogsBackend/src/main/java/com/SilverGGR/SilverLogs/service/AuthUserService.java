@@ -1,7 +1,10 @@
 package com.SilverGGR.SilverLogs.service;
 
+import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
+import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.enums.Role;
+import com.SilverGGR.SilverLogs.repository.ApprenticeRepository;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
 import com.SilverGGR.SilverLogs.security.JWTService;
 import com.SilverGGR.SilverLogs.security.MyUserDetailsService;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -26,6 +31,7 @@ import java.util.Map;
 public class AuthUserService {
 
     private final AuthUserRepository authUserRepo;
+    private final ApprenticeRepository apprenticeRepo;
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
     private final MyUserDetailsService userDetailsService;
@@ -67,7 +73,7 @@ public class AuthUserService {
                 return ResponseEntity.badRequest().body("Nur Bilddateien sind erlaubt");
             }
 
-            // Größenbeschränkung (z.B. 10MB)
+            // Größenbeschränkung (z. B. 10 MB)
             if (file.getSize() > 2 * 1024 * 1024) {
                 return ResponseEntity.badRequest().body("Datei darf nicht größer als 10MB sein");
             }
@@ -121,18 +127,21 @@ public class AuthUserService {
     }
 
     public String setup() {
-        if (authUserRepo.count() > 0) {
+        if (authUserRepo.count() > 0 && apprenticeRepo.count() > 0) {
             return "Database is not empty";
         } else {
+            Apprentice apprentice = new Apprentice();
+            apprentice.setUsername("user");
+            apprentice.setFirstname("Erster");
+            apprentice.setLastname("Guy");
+            apprentice.setEmail("user@email.com");
+            apprentice.setRole(Role.USER);
+            apprentice.setPassword(encoder.encode("user"));
+            apprentice.setStartingDate(LocalDate.of(2024, 7, 1));
+            apprentice.setEndingDate(LocalDate.of(2027, 7, 1));
+            apprenticeRepo.save(apprentice);
+
             AuthUser adminUser = new AuthUser();
-            AuthUser user = new AuthUser();
-            user.setUsername("user");
-            user.setFirstname("Erster");
-            user.setLastname("Guy");
-            user.setEmail("user@email.com");
-            user.setRole(Role.USER);
-            user.setPassword(encoder.encode("user"));
-            authUserRepo.save(user);
             adminUser.setUsername("admin");
             adminUser.setFirstname("Erster");
             adminUser.setLastname("Dude");
@@ -140,7 +149,37 @@ public class AuthUserService {
             adminUser.setRole(Role.ADMIN);
             adminUser.setPassword(encoder.encode("admin"));
             authUserRepo.save(adminUser);
+
             return "Setup successful";
         }
     }
+
+    @Transactional(readOnly = true)
+    public AuthUserDto[] getAllApprentice() {
+        List<Apprentice> apprenticeList = apprenticeRepo.findAll();
+        return apprenticeList.stream()
+                .map(this::convertToDto)
+                .toArray(AuthUserDto[]::new);
+    }
+
+    @Transactional(readOnly = true)
+    public AuthUserDto[] getAllSupervisors() {
+        List<AuthUser> supervisorList = authUserRepo.findByRole(Role.SUPERVISOR);
+        return supervisorList.stream()
+                .map(this::convertToDto)
+                .toArray(AuthUserDto[]::new);
+    }
+
+    // Hilfsmethode zum Konvertieren von AuthUser/Apprentice zu AuthUserDto
+    private AuthUserDto convertToDto(AuthUser user) {
+        AuthUserDto dto = new AuthUserDto();
+        dto.setUsername(user.getUsername());
+        dto.setFirstname(user.getFirstname());
+        dto.setLastname(user.getLastname());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        return dto;
+    }
+
+
 }

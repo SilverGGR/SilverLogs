@@ -48,7 +48,6 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.get('/hello')
 
         if (response.data) {
-          console.log(response.data)
           Notify.create({
             type: 'positive',
             message: 'Successful verify'
@@ -70,7 +69,6 @@ export const useAuthStore = defineStore('auth', {
       this.tokenExpiration = decoded.exp * 1000;
       this.user = decoded.sub;
       this.roles = decoded.roles || [];
-      console.log(this.roles)
       console.log(decoded.roles)
       localStorage.setItem('token', token);
     },

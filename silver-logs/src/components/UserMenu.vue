@@ -68,15 +68,15 @@ let intervalId
 async function loadUserImage() {
   try {
     const response = await api.get('/api/authUser/image', {
-      responseType: 'blob',
+      responseType: 'blob'
     });
 
     imageUrl.value = URL.createObjectURL(response.data);
   } catch (error) {
-    if (error.response && error.response.status !== 404) {
+    // Keine Konsolenausgabe für 404
+    if (!(error.response && error.response.status === 404)) {
       console.error('Fehler beim Laden des Profilbilds:', error);
     }
-    // 404 bedeutet, dass kein Bild vorhanden ist - kein Fehler
   }
 }
 

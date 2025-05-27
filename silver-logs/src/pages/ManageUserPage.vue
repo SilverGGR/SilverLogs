@@ -119,10 +119,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
-import { useAuthStore } from 'src/stores/auth'
 import { Notify } from 'quasar'
-
-const authStore = useAuthStore()
 
 // Daten
 const apprentices = ref([])
@@ -136,7 +133,7 @@ const loading = ref(false)
 const canAssignSupervisor = computed(() => {
   return selectedApprentice.value &&
     selectedSupervisor.value &&
-    !assignedSupervisors.value.some(s => s.id === selectedSupervisor.value.id)
+    !assignedSupervisors.value.some(s => s.username === selectedSupervisor.value.username)
 })
 
 // Methoden
@@ -260,15 +257,6 @@ const removeSupervisor = async (supervisor) => {
 
 // Lifecycle Hooks
 onMounted(async () => {
-  // Prüfen, ob der Benutzer Admin-Rechte hat
-  if (!authStore.isAdmin) {
-    Notify.create({
-      type: 'negative',
-      message: 'Sie haben keine Berechtigung, auf diese Seite zuzugreifen'
-    })
-    return
-  }
-
   await Promise.all([
     loadApprentices(),
     loadSupervisors()

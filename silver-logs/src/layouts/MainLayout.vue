@@ -47,10 +47,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 import UserMenu from 'components/UserMenu.vue';
+import { useAuthStore } from 'stores/auth.js';
 
+const authStore = useAuthStore();
 const linksList = [
   {
     title: 'Home',
@@ -64,18 +66,6 @@ const linksList = [
     icon: 'person',
     link: '/profile'
   },
-  {
-    title: 'Berichte',
-    caption: 'Berichte erstellen und bearbeiten',
-    icon: 'description',
-    link: '/report'
-  },
-  {
-    title: 'Manager',
-    caption: 'Ausbilder und Auszubildende verwalten',
-    icon: 'supervisor_account',
-    link: '/manage-users'
-  }
 ]
 
 const leftDrawerOpen = ref(false)
@@ -83,6 +73,32 @@ const leftDrawerOpen = ref(false)
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+onMounted(() => {
+  if (authStore.isAdmin) {
+    linksList.push({
+      title: 'Benutzer',
+      caption: 'Benutzer anzeigen und bearbeiten',
+      icon: 'supervisor_account',
+      link: '/user'
+    })
+  }
+  if (authStore.isSupervisor || authStore.isAdmin) {
+    linksList.push({
+      title: 'Manager',
+      caption: 'Ausbilder und Auszubildende verwalten',
+      icon: 'supervisor_account',
+      link: '/manage-users'
+    })
+  } else {
+    linksList.push({
+      title: 'Berichte',
+      caption: 'Berichte erstellen und bearbeiten',
+      icon: 'description',
+      link: '/report'
+    })
+  }
+})
 </script>
 
 <style>

@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.service;
 
+import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.entity.SupervisorApprenticeMapping;
@@ -67,13 +68,29 @@ public class SupervisorApprenticeService {
     /**
      * Liefert alle Supervisors, die einem Apprentice zugewiesen sind
      */
-    public List<AuthUser> getSupervisorsByApprentice(Long apprenticeId) {
-        Apprentice apprentice = apprenticeRepository.findById(apprenticeId)
-                .orElseThrow(() -> new EntityNotFoundException("Auszubildender nicht gefunden"));
-
-        return mappingRepository.findByApprentice(apprentice).stream()
+    @Transactional
+    public AuthUserDto[] getSupervisorsByApprentice(String apprenticeUsername) {
+        Apprentice apprentice = apprenticeRepository.findByUsername(apprenticeUsername);
+        List<SupervisorApprenticeMapping> supervisorList = mappingRepository.findByApprentice(apprentice);
+        return supervisorList.stream()
                 .map(SupervisorApprenticeMapping::getSupervisor)
-                .collect(Collectors.toList());
+                .map(this::convertToDto)
+                .toArray(AuthUserDto[]::new);
+
+    }
+
+    private AuthUserDto convertToDto(AuthUser user) {
+        AuthUserDto dto = new AuthUserDto();
+        dto.setUsername(user.getUsername());
+        dto.setFirstname(user.getFirstname());
+        dto.setLastname(user.getLastname());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setDepartment(user.getDepartment());
+        dto.setRole(user.getRole().toString());
+        dto.setProfileImage(user.getProfileImage());
+        dto.setProfileImageType(user.getProfileImageType());
+        return dto;
     }
 
 }

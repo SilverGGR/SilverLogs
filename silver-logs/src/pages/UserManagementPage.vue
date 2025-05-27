@@ -70,74 +70,189 @@
     </div>
 
     <!-- Dialog für Benutzer anlegen/bearbeiten -->
+<!--    <q-dialog v-model="userDialogOpen" persistent>-->
+<!--      <q-card>-->
+<!--        <q-card-section>-->
+<!--          <div class="text-h6">{{ isEditMode ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}</div>-->
+<!--          <q-toggle v-model="isApprentice" label="Apprentice" />-->
+<!--        </q-card-section>-->
+
+<!--        <q-card-section class="q-pt-none">-->
+<!--          <q-form @submit="saveUser" class="q-gutter-md">-->
+<!--            <q-input-->
+<!--              v-model="userForm.username"-->
+<!--              label="Benutzername"-->
+<!--              :rules="[val => !!val || 'Benutzername wird benötigt']"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-model="userForm.firstname"-->
+<!--              label="Vorname"-->
+<!--              :rules="[val => !!val || 'Vorname wird benötigt']"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-model="userForm.lastname"-->
+<!--              label="Nachname"-->
+<!--              :rules="[val => !!val || 'Nachname wird benötigt']"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-model="userForm.email"-->
+<!--              label="E-Mail"-->
+<!--              type="email"-->
+<!--              :rules="[-->
+<!--                val => !!val || 'E-Mail wird benötigt',-->
+<!--                val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültige E-Mail-Adresse'-->
+<!--              ]"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-model="userForm.phone"-->
+<!--              label="Telefon"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-model="userForm.department"-->
+<!--              label="Abteilung"-->
+<!--            />-->
+
+<!--            <q-select-->
+<!--              v-model="userForm.role"-->
+<!--              :options="roleOptions"-->
+<!--              label="Rolle"-->
+<!--              emit-value-->
+<!--              map-options-->
+<!--              :rules="[val => !!val || 'Rolle wird benötigt']"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-if="!isEditMode"-->
+<!--              v-model="userForm.password"-->
+<!--              label="Passwort"-->
+<!--              type="password"-->
+<!--              :rules="[val => !!val || 'Passwort wird benötigt']"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-if="isApprentice"-->
+<!--              v-model="userForm.startingDate"-->
+<!--              label="Startdatum"-->
+<!--              type="date"-->
+<!--            />-->
+
+<!--            <q-input-->
+<!--              v-if="isApprentice"-->
+<!--              v-model="userForm.endingDate"-->
+<!--              label="Enddatum"-->
+<!--              type="date"-->
+<!--            />-->
+<!--            <div class="row justify-end q-mt-md">-->
+<!--              <q-btn label="Abbrechen" color="grey" flat v-close-popup />-->
+<!--              <q-btn label="Speichern" type="submit" color="primary" class="q-ml-sm" />-->
+<!--            </div>-->
+<!--          </q-form>-->
+<!--        </q-card-section>-->
+<!--      </q-card>-->
+<!--    </q-dialog>-->
+
     <q-dialog v-model="userDialogOpen" persistent>
-      <q-card style="min-width: 450px">
+      <q-card>
         <q-card-section>
           <div class="text-h6">{{ isEditMode ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}</div>
+          <q-toggle v-model="isApprentice" label="Apprentice" />
         </q-card-section>
 
-        <q-card-section class="q-pt-none">
+        <q-card-section class="q-pt-none q-pd-md">
           <q-form @submit="saveUser" class="q-gutter-md">
-            <q-input
-              v-model="userForm.username"
-              label="Benutzername"
-              :disable="isEditMode"
-              :rules="[val => !!val || 'Benutzername wird benötigt']"
-            />
+            <div class="row q-col-gutter-md q-px-lg">
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="userForm.username"
+                  label="Benutzername"
+                  :rules="[val => !!val || 'Benutzername wird benötigt']"
+                />
+              </div>
 
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="userForm.email"
+                  label="E-Mail"
+                  type="email"
+                  :rules="[
+                val => !!val || 'E-Mail wird benötigt',
+                val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültige E-Mail-Adresse'
+              ]"
+                />
+              </div>
+
+              <div class="col-12 col-md-6">
                 <q-input
                   v-model="userForm.firstname"
                   label="Vorname"
                   :rules="[val => !!val || 'Vorname wird benötigt']"
                 />
               </div>
-              <div class="col-12 col-sm-6">
+
+              <div class="col-12 col-md-6">
                 <q-input
                   v-model="userForm.lastname"
                   label="Nachname"
                   :rules="[val => !!val || 'Nachname wird benötigt']"
                 />
               </div>
+
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="userForm.phone"
+                  label="Telefon"
+                />
+              </div>
+
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="userForm.department"
+                  label="Abteilung"
+                />
+              </div>
+
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-model="userForm.role"
+                  :options="roleOptions"
+                  label="Rolle"
+                  emit-value
+                  map-options
+                  :rules="[val => !!val || 'Rolle wird benötigt']"
+                  :disable="isApprentice"
+                />
+              </div>
+
+              <div class="col-12 col-md-6" v-if="!isEditMode">
+                <q-input
+                  v-model="userForm.password"
+                  label="Passwort"
+                  type="password"
+                  :rules="[val => !!val || 'Passwort wird benötigt']"
+                />
+              </div>
+
+              <div class="col-12 col-md-6" v-if="isApprentice">
+                <q-input
+                  v-model="userForm.startingDate"
+                  label="Startdatum"
+                  type="date"
+                />
+              </div>
+
+              <div class="col-12 col-md-6" v-if="isApprentice">
+                <q-input
+                  v-model="userForm.endingDate"
+                  label="Enddatum"
+                  type="date"
+                />
+              </div>
             </div>
-
-            <q-input
-              v-model="userForm.email"
-              label="E-Mail"
-              type="email"
-              :rules="[
-                val => !!val || 'E-Mail wird benötigt',
-                val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültige E-Mail-Adresse'
-              ]"
-            />
-
-            <q-input
-              v-model="userForm.phone"
-              label="Telefon"
-            />
-
-            <q-input
-              v-model="userForm.department"
-              label="Abteilung"
-            />
-
-            <q-select
-              v-model="userForm.role"
-              :options="roleOptions"
-              label="Rolle"
-              emit-value
-              map-options
-              :rules="[val => !!val || 'Rolle wird benötigt']"
-            />
-
-            <q-input
-              v-if="!isEditMode"
-              v-model="userForm.password"
-              label="Passwort"
-              type="password"
-              :rules="[val => !!val || 'Passwort wird benötigt']"
-            />
 
             <div class="row justify-end q-mt-md">
               <q-btn label="Abbrechen" color="grey" flat v-close-popup />
@@ -171,9 +286,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+//TODO: role value geht noch ned
+import { ref, computed, onMounted, watch } from 'vue'
 import { api } from 'src/boot/axios'
 import { useQuasar } from 'quasar'
+import AuthUserDto from 'src/dtos/AuthUserDto.js'
+import ApprenticeDto from 'src/dtos/ApprenticeDto.js'
 
 const $q = useQuasar()
 const loading = ref(false)
@@ -204,17 +322,20 @@ const roleOptions = [
   { label: 'Administrator', value: 'ADMIN' }
 ]
 
-const userForm = ref({
-  id: null,
-  username: '',
-  firstname: '',
-  lastname: '',
-  email: '',
-  phone: '',
-  department: '',
-  role: 'USER',
-  password: ''
-})
+const userForm = ref(createEmptyUser())
+
+function createEmptyUser() {
+  if (isApprentice.value) {
+    // LocalDate passend setzen/anpassen
+    return new ApprenticeDto(
+      null,                 // startingDate
+      null,                 // endingDate
+      '', '', '', '', '', '', '', '', ''
+    )
+  }
+  return new AuthUserDto('', '', '', '', '', '', 'USER', null, '', '')
+}
+
 
 const filteredUsers = computed(() => {
   if (!filter.value) {
@@ -260,69 +381,81 @@ async function loadUsers() {
 
 function openUserDialog(user = null) {
   if (user) {
-    // Bearbeiten eines bestehenden Benutzers
     isEditMode.value = true
-    userForm.value = {
-      id: user.id,
-      username: user.username,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
-      phone: user.phone || '',
-      department: user.department || '',
-      role: user.role
+    if (user.startingDate !== undefined) {
+      // Azubi-Formular, inklusive Date-Felder
+      isApprentice.value = true
+      userForm.value = new ApprenticeDto(
+        user.startingDate || null,
+        user.endingDate || null,
+        user.username || '',
+        user.firstname || '',
+        user.lastname || '',
+        user.email || '',
+        user.phone || '',
+        user.department || '',
+        user.role || 'USER',
+        user.profileImage || null,
+        user.profileImageType || '',
+        // Passwort soll beim Bearbeiten idR leer bleiben
+        ''
+      )
+    } else {
+      isApprentice.value = false
+      userForm.value = new AuthUserDto(
+        user.username || '',
+        user.firstname || '',
+        user.lastname || '',
+        user.email || '',
+        user.phone || '',
+        user.department || '',
+        user.role || 'USER',
+        user.profileImage || null,
+        user.profileImageType || '',
+        ''
+      )
     }
   } else {
-    // Neuen Benutzer erstellen
     isEditMode.value = false
-    userForm.value = {
-      id: null,
-      username: '',
-      firstname: '',
-      lastname: '',
-      email: '',
-      phone: '',
-      department: '',
-      role: 'USER',
-      password: ''
-    }
+    userForm.value = createEmptyUser()
   }
   userDialogOpen.value = true
 }
 
+
 async function saveUser() {
   try {
     isLoading.value = true
+    let apiUrl
+    let dtoData = userForm.value
 
     if (isEditMode.value) {
-      // Benutzer aktualisieren
-      await api.put(`/api/authUser/admin/update/${userForm.value.id}`, userForm.value)
+      apiUrl = '/api/authUser/admin/update'
+      // Bei Update api.put verwenden, bei Bedarf Username/ID übergeben
+      await api.put(apiUrl, dtoData)
       $q.notify({
         type: 'positive',
         message: 'Benutzer erfolgreich aktualisiert'
       })
+    } else if (isApprentice.value) {
+      apiUrl = '/api/authUser/admin/createApprentice'
+      await api.post(apiUrl, dtoData)
+      $q.notify({
+        type: 'positive',
+        message: 'Auszubildender erfolgreich erstellt'
+      })
     } else {
-      // Neuen Benutzer erstellen
-      if (isApprentice.value) {
-        await api.post('/api/authUser/admin/createApprentice', userForm.value)
-        $q.notify({
-          type: 'positive',
-          message: 'Benutzer erfolgreich erstellt'
-        })
-      } else {
-        await api.post('/api/authUser/admin/create', userForm.value)
-        $q.notify({
-          type: 'positive',
-          message: 'Benutzer erfolgreich erstellt'
-        })
-      }
+      apiUrl = '/api/authUser/admin/createUser'
+      await api.post(apiUrl, dtoData)
+      $q.notify({
+        type: 'positive',
+        message: 'Benutzer erfolgreich erstellt'
+      })
     }
 
     userDialogOpen.value = false
     await loadUsers()
-
   } catch (error) {
-    console.error('Fehler beim Speichern des Benutzers:', error)
     $q.notify({
       type: 'negative',
       message: error.response?.data?.message || 'Fehler beim Speichern des Benutzers'
@@ -362,6 +495,12 @@ async function deleteUser() {
 
 onMounted(() => {
   loadUsers()
+})
+
+watch(() => isApprentice, (newValue) => {
+  if (newValue) {
+    userForm.value.role = 'USER'
+  }
 })
 </script>
 

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class ApprenticeDto extends AuthUserDto{
+public class ApprenticeDto extends AuthUserDto {
     private LocalDate startingDate;
     private LocalDate endingDate;
 }

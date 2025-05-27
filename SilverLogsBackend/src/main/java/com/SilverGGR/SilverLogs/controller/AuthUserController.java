@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.controller;
 
+import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
@@ -91,8 +92,8 @@ public class AuthUserController {
     }
 
     @PostMapping("/admin/createApprentice")
-    public ResponseEntity<AuthUserDto> createApprentice(@RequestBody AuthUserDto userDto) {
-        return ResponseEntity.ok(authUserService.createAuthUser(userDto));
+    public ResponseEntity<AuthUserDto> createApprentice(@RequestBody ApprenticeDto userDto) {
+        return ResponseEntity.ok(authUserService.createApprentice(userDto));
     }
 
     @PutMapping("/admin/update")

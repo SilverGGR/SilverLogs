@@ -141,9 +141,11 @@ public class AuthUserService {
         user.setPhone(authUserDto.getPhone());
         user.setDepartment(authUserDto.getDepartment());
         user.setRole(Role.valueOf(authUserDto.getRole()));
-        user.setPassword(encoder.encode(authUserDto.getPassword()));
         user.setProfileImage(authUserDto.getProfileImage());
         user.setProfileImageType(authUserDto.getProfileImageType());
+        if (authUserDto.getPassword() != null) {
+            user.setPassword(encoder.encode(authUserDto.getPassword()));
+        }
         return dtoMapper.convertUserToDto(authUserRepo.save(user));
     }
 

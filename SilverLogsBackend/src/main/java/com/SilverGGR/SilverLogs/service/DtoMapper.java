@@ -166,6 +166,7 @@ public class DtoMapper {
         dto.setFirstname(apprentice.getFirstname());
         dto.setLastname(apprentice.getLastname());
         dto.setEmail(apprentice.getEmail());
+        dto.setPhone(apprentice.getPhone());
         dto.setDepartment(apprentice.getDepartment());
         dto.setStartingDate(apprentice.getStartingDate());
         dto.setEndingDate(apprentice.getEndingDate());
@@ -188,6 +189,7 @@ public class DtoMapper {
         apprentice.setFirstname(dto.getFirstname());
         apprentice.setLastname(dto.getLastname());
         apprentice.setEmail(dto.getEmail());
+        apprentice.setPhone(dto.getPhone());
         apprentice.setDepartment(dto.getDepartment());
         apprentice.setStartingDate(dto.getStartingDate());
         apprentice.setEndingDate(dto.getEndingDate());

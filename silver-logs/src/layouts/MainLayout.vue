@@ -88,7 +88,7 @@ onMounted(() => {
       title: 'Manager',
       caption: 'Ausbilder und Auszubildende verwalten',
       icon: 'supervisor_account',
-      link: '/manage-users'
+      link: '/manage-connections'
     })
   } else {
     linksList.push({

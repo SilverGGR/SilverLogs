@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.controller;
 
+import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.service.AuthUserService;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +21,14 @@ public class AuthController {
     private final AuthUserService service;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthUser authUser) {
+    public ResponseEntity<String> login(@RequestBody AuthUserDto authUser) {
         String token = service.verify(authUser);
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthUser authUser) {
-        AuthUser registeredUser = service.register(authUser);
+    public ResponseEntity<String> register(@RequestBody AuthUserDto authUser) {
+        service.createAuthUser(authUser);
         return ResponseEntity.ok("User registered successfully");
     }
 

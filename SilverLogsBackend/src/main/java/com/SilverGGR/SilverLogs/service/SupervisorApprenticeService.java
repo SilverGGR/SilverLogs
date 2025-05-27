@@ -23,6 +23,7 @@ public class SupervisorApprenticeService {
     private final AuthUserRepository authUserRepository;
     private final ApprenticeRepository apprenticeRepository;
     private final SupervisorApprenticeMappingRepository mappingRepository;
+    private final DtoMapper dtoMapper;
 
     /**
      * Weist einen Apprentice einem Supervisor zu
@@ -69,28 +70,13 @@ public class SupervisorApprenticeService {
      * Liefert alle Supervisors, die einem Apprentice zugewiesen sind
      */
     @Transactional
-    public AuthUserDto[] getSupervisorsByApprentice(String apprenticeUsername) {
+    public List<AuthUserDto> getSupervisorsByApprentice(String apprenticeUsername) {
         Apprentice apprentice = apprenticeRepository.findByUsername(apprenticeUsername);
         List<SupervisorApprenticeMapping> supervisorList = mappingRepository.findByApprentice(apprentice);
         return supervisorList.stream()
                 .map(SupervisorApprenticeMapping::getSupervisor)
-                .map(this::convertToDto)
-                .toArray(AuthUserDto[]::new);
+                .map(dtoMapper::convertToDtoWithImage)
+                .toList();
 
     }
-
-    private AuthUserDto convertToDto(AuthUser user) {
-        AuthUserDto dto = new AuthUserDto();
-        dto.setUsername(user.getUsername());
-        dto.setFirstname(user.getFirstname());
-        dto.setLastname(user.getLastname());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setDepartment(user.getDepartment());
-        dto.setRole(user.getRole().toString());
-        dto.setProfileImage(user.getProfileImage());
-        dto.setProfileImageType(user.getProfileImageType());
-        return dto;
-    }
-
 }

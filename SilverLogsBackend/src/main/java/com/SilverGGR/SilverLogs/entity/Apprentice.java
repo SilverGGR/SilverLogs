@@ -29,7 +29,7 @@ public class Apprentice extends AuthUser{
     )
     private List<Report> reports = new ArrayList<>();
 
-    // Beziehung zu Supervisors (überschreibt die Beziehung in AuthUser)
+    // Beziehung zu Supervisors
     @OneToMany(mappedBy = "apprentice", cascade = CascadeType.ALL)
     private List<SupervisorApprenticeMapping> supervisors = new ArrayList<>();
 

@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -74,25 +76,47 @@ public class AuthUserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<String> updateProfile(
-            @RequestBody Map<String, String> updates,
-            Authentication authentication) {
+    public ResponseEntity<String> updateProfile(@RequestBody AuthUserDto authUserDto) {
+        return authUserService.updateProfile(authUserDto);
+    }
 
-        String username = authentication.getName();
-        return authUserService.updateProfile(username, updates);
+    @GetMapping("/all")
+    public ResponseEntity<List<AuthUserDto>> getAllUsers() {
+        return ResponseEntity.ok(authUserService.getAll());
+    }
+
+    @PostMapping("/admin/createUser")
+    public ResponseEntity<AuthUserDto> createUser(@RequestBody AuthUserDto userDto) {
+        return ResponseEntity.ok(authUserService.createAuthUser(userDto));
+    }
+
+    @PostMapping("/admin/createApprentice")
+    public ResponseEntity<AuthUserDto> createApprentice(@RequestBody AuthUserDto userDto) {
+        return ResponseEntity.ok(authUserService.createAuthUser(userDto));
+    }
+
+    @PutMapping("/admin/update")
+    public ResponseEntity<AuthUserDto> updateUser(@RequestBody AuthUserDto authUserDto) {
+        return ResponseEntity.ok(authUserService.updateUser(authUserDto));
+    }
+
+    @DeleteMapping("/admin/delete/{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        authUserService.deleteUser(username);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/apprentice/all")
-    public ResponseEntity<AuthUserDto[]> getAllApprentices() {
+    public ResponseEntity<List<AuthUserDto>> getAllApprentices() {
         return ResponseEntity.ok(authUserService.getAllApprentice());
     }
     @GetMapping("/supervisors/all")
-    public ResponseEntity<AuthUserDto[]> getAllSupervisors() {
+    public ResponseEntity<List<AuthUserDto>> getAllSupervisors() {
         return ResponseEntity.ok(authUserService.getAllSupervisors());
     }
 
     @GetMapping("/supervisors-for-apprentice")
-    public ResponseEntity<AuthUserDto[]> getSupervisorsForApprentice(@RequestParam String apprenticeUsername) {
+    public ResponseEntity<List<AuthUserDto>> getSupervisorsForApprentice(@RequestParam String apprenticeUsername) {
         return ResponseEntity.ok(supervisorApprenticeService.getSupervisorsByApprentice(apprenticeUsername));
     }
 

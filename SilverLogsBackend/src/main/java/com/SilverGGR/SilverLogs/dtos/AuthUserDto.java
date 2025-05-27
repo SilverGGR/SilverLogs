@@ -15,4 +15,5 @@ public class AuthUserDto {
     private String role;
     private byte[] profileImage;
     private String profileImageType;
+    private String password;
 }

@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.service;
 
+import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
@@ -35,15 +36,24 @@ public class AuthUserService {
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
     private final MyUserDetailsService userDetailsService;
+    private final SupervisorApprenticeService supervisorApprenticeService;
+    private final DtoMapper dtoMapper;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public AuthUser register(AuthUser authUser) {
-        authUser.setPassword(encoder.encode(authUser.getPassword()));
-        return authUserRepo.save(authUser);
+    public AuthUserDto createAuthUser(AuthUserDto authUserDto) {
+        AuthUser user = dtoMapper.convertUserFromDto(authUserDto);
+        user.setPassword(encoder.encode(authUserDto.getPassword()));
+        return dtoMapper.convertUserToDto(authUserRepo.save(user));
     }
 
-    public String verify(AuthUser authUser) {
+    public ApprenticeDto createApprentice(ApprenticeDto apprenticeDto) {
+        Apprentice user = dtoMapper.convertApprenticeFromDto(apprenticeDto);
+        user.setPassword(encoder.encode(apprenticeDto.getPassword()));
+        return dtoMapper.convertApprenticeToDto(apprenticeRepo.save(user));
+    }
+
+    public String verify(AuthUserDto authUser) {
         try {
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authUser.getUsername(), authUser.getPassword()));
@@ -102,28 +112,48 @@ public class AuthUserService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateProfile(String username, Map<String, String> updates) {
-        AuthUser user = authUserRepo.findByUsername(username);
+    public ResponseEntity<String> updateProfile(AuthUserDto authUserDto) {
+        AuthUser user = authUserRepo.findByUsername(authUserDto.getUsername());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Benutzer nicht gefunden");
         }
 
-        // Update nur der erlaubten Felder
-        if (updates.containsKey("email")) {
-            user.setEmail(updates.get("email"));
-        }
-
-        if (updates.containsKey("firstname")) {
-            user.setFirstname(updates.get("firstname"));
-        }
-
-        if (updates.containsKey("lastname")) {
-            user.setLastname(updates.get("lastname"));
-        }
+        user.setEmail(authUserDto.getEmail());
+        user.setFirstname(authUserDto.getFirstname());
+        user.setLastname(authUserDto.getLastname());
 
         authUserRepo.save(user);
         return ResponseEntity.ok("Profil erfolgreich aktualisiert");
+    }
+
+    @Transactional
+    public AuthUserDto updateUser(AuthUserDto authUserDto) {
+        AuthUser user = authUserRepo.findByUsername(authUserDto.getUsername());
+        if (user == null) {
+            return null;
+        }
+
+        user.setUsername(authUserDto.getUsername());
+        user.setFirstname(authUserDto.getFirstname());
+        user.setLastname(authUserDto.getLastname());
+        user.setEmail(authUserDto.getEmail());
+        user.setPhone(authUserDto.getPhone());
+        user.setDepartment(authUserDto.getDepartment());
+        user.setRole(Role.valueOf(authUserDto.getRole()));
+        user.setPassword(encoder.encode(authUserDto.getPassword()));
+        user.setProfileImage(authUserDto.getProfileImage());
+        user.setProfileImageType(authUserDto.getProfileImageType());
+        return dtoMapper.convertUserToDto(authUserRepo.save(user));
+    }
+
+    @Transactional
+    public void deleteUser(String username) {
+        AuthUser user = authUserRepo.findByUsername(username);
+        if (user == null) {
+            return;
+        }
+        authUserRepo.delete(user);
     }
 
     public String setup() {
@@ -155,31 +185,25 @@ public class AuthUserService {
     }
 
     @Transactional(readOnly = true)
-    public AuthUserDto[] getAllApprentice() {
+    public List<AuthUserDto> getAllApprentice() {
         List<Apprentice> apprenticeList = apprenticeRepo.findAll();
         return apprenticeList.stream()
-                .map(this::convertToDto)
-                .toArray(AuthUserDto[]::new);
+                .map(dtoMapper::convertUserToDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public AuthUserDto[] getAllSupervisors() {
+    public List<AuthUserDto> getAllSupervisors() {
         List<AuthUser> supervisorList = authUserRepo.findByRole(Role.SUPERVISOR);
         return supervisorList.stream()
-                .map(this::convertToDto)
-                .toArray(AuthUserDto[]::new);
+                .map(dtoMapper::convertUserToDto)
+                .toList();
     }
-
-    // Hilfsmethode zum Konvertieren von AuthUser/Apprentice zu AuthUserDto
-    private AuthUserDto convertToDto(AuthUser user) {
-        AuthUserDto dto = new AuthUserDto();
-        dto.setUsername(user.getUsername());
-        dto.setFirstname(user.getFirstname());
-        dto.setLastname(user.getLastname());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        return dto;
+    @Transactional(readOnly = true)
+    public List<AuthUserDto> getAll() {
+        List<AuthUser> userList = authUserRepo.findAll();
+        return userList.stream()
+                .map(dtoMapper::convertUserToDto)
+                .toList();
     }
-
-
 }

@@ -17,8 +17,13 @@ const routes = [
         component: () => import('pages/ReportPage.vue')
       },
       {
-        path: '/manage-users',
-        component: () => import('pages/ManageUserPage.vue'),
+        path: '/manage-connections',
+        component: () => import('pages/ManageConnectionsPage.vue'),
+        meta: { requiredRole: 'ADMIN' }
+      },
+      {
+        path: '/user',
+        component: () => import('pages/UserManagementPage.vue'),
         meta: { requiredRole: 'ADMIN' }
       }
     ]

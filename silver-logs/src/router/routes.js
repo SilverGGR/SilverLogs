@@ -17,14 +17,19 @@ const routes = [
         component: () => import('pages/ReportPage.vue')
       },
       {
+        path: '/report-watch',
+        component: () => import('pages/ReportWatchPage.vue'),
+        meta: { requiredRoles: ['SUPERVISOR', 'ADMIN'] }
+      },
+      {
         path: '/manage-connections',
         component: () => import('pages/ManageConnectionsPage.vue'),
-        meta: { requiredRole: 'ADMIN' }
+        meta: { requiredRoles: 'ADMIN' }
       },
       {
         path: '/user',
         component: () => import('pages/UserManagementPage.vue'),
-        meta: { requiredRole: 'ADMIN' }
+        meta: { requiredRoles: 'ADMIN' }
       }
     ]
   },

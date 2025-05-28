@@ -81,14 +81,20 @@ onMounted(() => {
       caption: 'Benutzer anzeigen und bearbeiten',
       icon: 'supervisor_account',
       link: '/user'
-    })
-  }
-  if (authStore.isSupervisor || authStore.isAdmin) {
-    linksList.push({
+    },
+    {
       title: 'Manager',
       caption: 'Ausbilder und Auszubildende verwalten',
       icon: 'supervisor_account',
       link: '/manage-connections'
+    })
+  }
+  if (authStore.isSupervisor || authStore.isAdmin) {
+    linksList.push({
+      title: 'Berichte',
+      caption: 'Berichte einsehen',
+      icon: 'description',
+      link: '/report-watch'
     })
   } else {
     linksList.push({

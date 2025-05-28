@@ -4,7 +4,6 @@ import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.entity.SupervisorApprenticeMapping;
-import com.SilverGGR.SilverLogs.enums.Role;
 import com.SilverGGR.SilverLogs.repository.ApprenticeRepository;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
 import com.SilverGGR.SilverLogs.repository.SupervisorApprenticeMappingRepository;

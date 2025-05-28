@@ -24,10 +24,10 @@ export default defineRouter(function (/* { store, ssrContext } */) {
         return
       }
 
-      const requiredRole = to.matched.find(record => record.meta.requiredRole)?.meta.requiredRole
+      const requiredRoles = to.matched.find(record => record.meta.requiredRoles)?.meta.requiredRoles
 
-      if (requiredRole && !authStore.hasPermission(requiredRole)) {
-        // Benutzer hat nicht die erforderliche Rolle, zur Startseite weiterleiten
+      if (requiredRoles && !requiredRoles.some(role => authStore.hasPermission(role))) {
+        // Benutzer hat keine der erforderlichen Rollen
         Notify.create({
           type: 'negative',
           message: 'Sie haben keine Berechtigung, auf diese Seite zuzugreifen'

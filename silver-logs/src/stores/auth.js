@@ -66,11 +66,10 @@ export const useAuthStore = defineStore('auth', {
 
     setToken(token) {
       this.token = token;
-      const decoded = jwtDecode(token); // Geändert zu jwtDecode
+      const decoded = jwtDecode(token);
       this.tokenExpiration = decoded.exp * 1000;
       this.user = decoded.sub;
       this.roles = decoded.roles || [];
-      console.log(decoded.roles)
       localStorage.setItem('token', token);
     },
 

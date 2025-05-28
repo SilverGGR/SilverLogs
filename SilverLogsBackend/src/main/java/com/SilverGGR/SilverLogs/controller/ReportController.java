@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.controller;
 
+import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
 import com.SilverGGR.SilverLogs.dtos.ReportDto;
 import com.SilverGGR.SilverLogs.entity.Report;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/report")
@@ -27,6 +29,11 @@ public class ReportController {
     @GetMapping("/{weekStartDate}")
     public ResponseEntity<ReportDto> getReportByUserAndDate(@PathVariable LocalDate weekStartDate, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
         return ResponseEntity.ok(reportService.getReportByUserAndDate(weekStartDate, authUserPrincipal.getUsername()));
+    }
+
+    @GetMapping("/getAllBadges")
+    public ResponseEntity<List<ReportBadgeDto>> getBadge(@AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
+        return ResponseEntity.ok(reportService.getAllBadges(authUserPrincipal.getUsername()));
     }
 
     @PostMapping("/save")

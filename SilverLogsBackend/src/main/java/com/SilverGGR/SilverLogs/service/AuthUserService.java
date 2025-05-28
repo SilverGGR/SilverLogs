@@ -7,6 +7,7 @@ import com.SilverGGR.SilverLogs.entity.AuthUser;
 import com.SilverGGR.SilverLogs.enums.Role;
 import com.SilverGGR.SilverLogs.repository.ApprenticeRepository;
 import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
+import com.SilverGGR.SilverLogs.security.AuthUserPrincipal;
 import com.SilverGGR.SilverLogs.security.JWTService;
 import com.SilverGGR.SilverLogs.security.MyUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -208,4 +210,18 @@ public class AuthUserService {
                 .map(dtoMapper::convertUserToDto)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<LocalDate> getStartAndEndDate(AuthUserPrincipal authUser) {
+        Apprentice apprentice = apprenticeRepo.findByUsername(authUser.getUsername());
+        if (apprentice == null) {
+            throw new RuntimeException("Benutzer nicht gefunden");
+        }
+
+        List<LocalDate> dates = new ArrayList<>();
+        dates.add(apprentice.getStartingDate());
+        dates.add(apprentice.getEndingDate());
+        return dates;
+    }
+
 }

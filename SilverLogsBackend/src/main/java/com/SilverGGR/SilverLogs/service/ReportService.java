@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.service;
 
+import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
 import com.SilverGGR.SilverLogs.dtos.ReportDto;
 import com.SilverGGR.SilverLogs.entity.Report;
 import com.SilverGGR.SilverLogs.repository.ReportRepository;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +17,7 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final AuthUserService authUserService;
+    private final DtoMapper dtoMapper;
 
     public ReportDto getReportByUserAndDate(LocalDate weekStartDate, String username) {
        Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, weekStartDate);
@@ -27,7 +30,6 @@ public class ReportService {
             newReport.setInstructionText("");
             newReport.setSchoolText("");
             newReport.setExtraText(null);
-//            newReport.setReportNumber(null); //TODO: Ohje
             newReport.setDepartment(null);
             newReport.setSubmitted(false);
             newReport.setApproved(false);
@@ -36,23 +38,7 @@ public class ReportService {
             return newReport;
         }
 
-        return getReportDto(report);
-    }
-
-    private static ReportDto getReportDto(Report report) {
-        ReportDto reportDto = new ReportDto();
-        reportDto.setWeekStart(report.getWeekStart());
-        reportDto.setWeekEnd(report.getWeekEnd());
-        reportDto.setWeekText(report.getWeekText());
-        reportDto.setInstructionText(report.getInstructionText());
-        reportDto.setSchoolText(report.getSchoolText());
-        reportDto.setExtraText(report.getExtraText());
-        reportDto.setDepartment(report.getDepartment());
-        reportDto.setSubmitted(report.getSubmitted());
-        reportDto.setApproved(report.getApproved());
-        reportDto.setRejected(report.getRejected());
-        reportDto.setComment(report.getComment());
-        return reportDto;
+        return dtoMapper.convertReportToDto(report);
     }
 
     public ReportDto getOrCreateReport(ReportDto reportDto, String username) {
@@ -65,7 +51,6 @@ public class ReportService {
             report.setAuthUser(authUserService.findByUsername(username));
             report.setWeekStart(reportDto.getWeekStart());
             report.setWeekEnd(reportDto.getWeekEnd());
-//            report.setReportNumber(reportDto.getReportNumber()); //TODO: Reportnummer muss ich noch anständig klären
         }
 
         // Update die Felder des Reports (bestehend oder neu)
@@ -80,11 +65,19 @@ public class ReportService {
         report.setComment(reportDto.getComment());
 
         Report savedReport = saveReport(report);
-        return getReportDto(savedReport);
+        return dtoMapper.convertReportToDto(savedReport);
     }
 
     public Report saveReport(Report report) {
         return reportRepository.save(report);
     }
+
+    public List<ReportBadgeDto> getAllBadges(String username) {
+        List<Report> reports = reportRepository.findAllByAuthUser_Username(username);
+        return reports.stream()
+                .map(dtoMapper::convertReportToBadgeDto)
+                .toList();
+    }
+
 
 }

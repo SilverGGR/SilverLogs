@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,5 +132,10 @@ public class AuthUserController {
     public ResponseEntity<String> deleteConnection(@RequestParam String apprenticeUsername, @RequestParam String supervisorUsername) {
         supervisorApprenticeService.deleteConnection(apprenticeUsername, supervisorUsername);
         return ResponseEntity.ok("Supervisor successfully deleted");
+    }
+
+    @GetMapping("/start-end-date")
+    public ResponseEntity<List<LocalDate>> getStartAndEndDate(@AuthenticationPrincipal AuthUserPrincipal authUser) {
+        return ResponseEntity.ok(authUserService.getStartAndEndDate(authUser));
     }
 }

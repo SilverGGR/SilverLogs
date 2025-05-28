@@ -2,8 +2,11 @@ package com.SilverGGR.SilverLogs.service;
 
 import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
+import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
+import com.SilverGGR.SilverLogs.dtos.ReportDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
+import com.SilverGGR.SilverLogs.entity.Report;
 import com.SilverGGR.SilverLogs.enums.Role;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -270,5 +273,35 @@ public class DtoMapper {
         apprentice.setProfileImageType(user.getProfileImageType());
 
         return apprentice;
+    }
+
+    // ---------- Apprentice Mapping ----------
+
+    public ReportDto convertReportToDto(Report report) {
+        if (report == null) return null;
+        ReportDto dto = new ReportDto();
+        dto.setWeekStart(report.getWeekStart());
+        dto.setWeekEnd(report.getWeekEnd());
+        dto.setWeekText(report.getWeekText());
+        dto.setInstructionText(report.getInstructionText());
+        dto.setSchoolText(report.getSchoolText());
+        dto.setExtraText(report.getExtraText());
+        dto.setDepartment(report.getDepartment());
+        dto.setSubmitted(report.getSubmitted());
+        dto.setApproved(report.getApproved());
+        dto.setRejected(report.getRejected());
+        dto.setComment(report.getComment());
+        return dto;
+    }
+
+    public ReportBadgeDto convertReportToBadgeDto(Report report) {
+        if (report == null) return null;
+        ReportBadgeDto dto = new ReportBadgeDto();
+        dto.setWeekStart(report.getWeekStart());
+        dto.setWeekEnd(report.getWeekEnd());
+        dto.setSubmitted(Boolean.TRUE.equals(report.getSubmitted()));
+        dto.setApproved(Boolean.TRUE.equals(report.getApproved()));
+        dto.setRejected(Boolean.TRUE.equals(report.getRejected()));
+        return dto;
     }
 }

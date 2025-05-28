@@ -24,12 +24,12 @@ const routes = [
       {
         path: '/manage-connections',
         component: () => import('pages/ManageConnectionsPage.vue'),
-        meta: { requiredRoles: 'ADMIN' }
+        meta: { requiredRoles: ['ADMIN'] }
       },
       {
         path: '/user',
         component: () => import('pages/UserManagementPage.vue'),
-        meta: { requiredRoles: 'ADMIN' }
+        meta: { requiredRoles: ['ADMIN'] }
       }
     ]
   },

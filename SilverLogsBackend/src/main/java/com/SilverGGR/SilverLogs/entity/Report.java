@@ -24,11 +24,11 @@ public class Report {
     private Long id;
     private LocalDate weekStart;
     private LocalDate weekEnd;
+    private Integer weekNumber;
     private String weekText;
     private String instructionText;
     private String schoolText;
     private String extraText;
-    private Integer reportNumber;
     private String department;
     private Boolean submitted;
     private Boolean approved;

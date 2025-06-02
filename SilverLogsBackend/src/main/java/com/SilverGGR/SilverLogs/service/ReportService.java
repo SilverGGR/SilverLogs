@@ -2,6 +2,7 @@ package com.SilverGGR.SilverLogs.service;
 
 import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
 import com.SilverGGR.SilverLogs.dtos.ReportDto;
+import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.Report;
 import com.SilverGGR.SilverLogs.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -52,17 +54,7 @@ public class ReportService {
             report.setWeekStart(reportDto.getWeekStart());
             report.setWeekEnd(reportDto.getWeekEnd());
         }
-
-        // Update die Felder des Reports (bestehend oder neu)
-        report.setWeekText(reportDto.getWeekText());
-        report.setInstructionText(reportDto.getInstructionText());
-        report.setSchoolText(reportDto.getSchoolText());
-        report.setExtraText(reportDto.getExtraText());
-        report.setDepartment(reportDto.getDepartment());
-        report.setSubmitted(reportDto.getSubmitted());
-        report.setApproved(reportDto.getApproved());
-        report.setRejected(reportDto.getRejected());
-        report.setComment(reportDto.getComment());
+        dtoMapper.convertDtoToReport(report, reportDto);
 
         Report savedReport = saveReport(report);
         return dtoMapper.convertReportToDto(savedReport);
@@ -75,9 +67,36 @@ public class ReportService {
     public List<ReportBadgeDto> getAllBadges(String username) {
         List<Report> reports = reportRepository.findAllByAuthUser_Username(username);
         return reports.stream()
+                .sorted(Comparator.comparing(Report::getReportNumber))
                 .map(dtoMapper::convertReportToBadgeDto)
                 .toList();
     }
 
+    public void createEmptyReports(Apprentice apprentice) {
+        LocalDate startDate = apprentice.getStartingDate();
+        LocalDate endDate = apprentice.getEndingDate();
+
+        // Falls der Start nicht ein Montag ist, gehe zum Montag der Woche zurück
+        if (startDate.getDayOfWeek().getValue() != 1) {
+            startDate = startDate.minusDays(startDate.getDayOfWeek().getValue() - 1);
+        }
+
+        // Iteriere durch Wochen und erstelle leere Berichte
+        Integer count = 1;
+        while (!startDate.isAfter(endDate)) {
+            Report report = new Report();
+            report.setReportNumber(count++);
+            report.setAuthUser(apprentice);
+            report.setWeekStart(startDate);
+            report.setWeekEnd(startDate.plusDays(6));
+            report.setSubmitted(false);
+            report.setApproved(false);
+            report.setRejected(false);
+            reportRepository.save(report);
+
+            // Zur nächsten Woche
+            startDate = startDate.plusWeeks(1);
+        }
+    }
 
 }

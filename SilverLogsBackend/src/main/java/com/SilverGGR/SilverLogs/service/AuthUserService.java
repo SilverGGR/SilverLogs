@@ -1,6 +1,5 @@
 package com.SilverGGR.SilverLogs.service;
 
-import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
@@ -27,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +36,6 @@ public class AuthUserService {
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
     private final MyUserDetailsService userDetailsService;
-    private final SupervisorApprenticeService supervisorApprenticeService;
     private final DtoMapper dtoMapper;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -47,12 +44,6 @@ public class AuthUserService {
         AuthUser user = dtoMapper.convertUserFromDto(authUserDto);
         user.setPassword(encoder.encode(authUserDto.getPassword()));
         return dtoMapper.convertUserToDto(authUserRepo.save(user));
-    }
-
-    public ApprenticeDto createApprentice(ApprenticeDto apprenticeDto) {
-        Apprentice user = dtoMapper.convertApprenticeFromDto(apprenticeDto);
-        user.setPassword(encoder.encode(apprenticeDto.getPassword()));
-        return dtoMapper.convertApprenticeToDto(apprenticeRepo.save(user));
     }
 
     public String verify(AuthUserDto authUser) {

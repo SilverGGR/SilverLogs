@@ -24,7 +24,7 @@ public class Report {
     private Long id;
     private LocalDate weekStart;
     private LocalDate weekEnd;
-    private Integer weekNumber;
+    private Integer reportNumber;
     private String weekText;
     private String instructionText;
     private String schoolText;

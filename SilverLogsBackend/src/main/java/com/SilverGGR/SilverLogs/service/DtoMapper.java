@@ -282,6 +282,7 @@ public class DtoMapper {
         ReportDto dto = new ReportDto();
         dto.setWeekStart(report.getWeekStart());
         dto.setWeekEnd(report.getWeekEnd());
+        dto.setReportNumber(report.getReportNumber());
         dto.setWeekText(report.getWeekText());
         dto.setInstructionText(report.getInstructionText());
         dto.setSchoolText(report.getSchoolText());
@@ -294,11 +295,27 @@ public class DtoMapper {
         return dto;
     }
 
+    public Report convertDtoToReport(Report report, ReportDto dto) {
+        if (dto == null) return null;
+        report.setReportNumber(dto.getReportNumber());
+        report.setWeekText(dto.getWeekText());
+        report.setInstructionText(dto.getInstructionText());
+        report.setSchoolText(dto.getSchoolText());
+        report.setExtraText(dto.getExtraText());
+        report.setDepartment(dto.getDepartment());
+        report.setSubmitted(dto.getSubmitted());
+        report.setApproved(dto.getApproved());
+        report.setRejected(dto.getRejected());
+        report.setComment(dto.getComment());
+        return report;
+    }
+
     public ReportBadgeDto convertReportToBadgeDto(Report report) {
         if (report == null) return null;
         ReportBadgeDto dto = new ReportBadgeDto();
         dto.setWeekStart(report.getWeekStart());
         dto.setWeekEnd(report.getWeekEnd());
+        dto.setReportNumber(report.getReportNumber());
         dto.setSubmitted(Boolean.TRUE.equals(report.getSubmitted()));
         dto.setApproved(Boolean.TRUE.equals(report.getApproved()));
         dto.setRejected(Boolean.TRUE.equals(report.getRejected()));

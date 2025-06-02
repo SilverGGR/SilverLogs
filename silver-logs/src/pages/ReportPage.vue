@@ -3,16 +3,28 @@
     <div class="row">
       <!-- Sidebar mit Wochen -->
       <div class="col-2 bg-primary text-white">
-        <div
-          v-for="(week, index) in weeks"
-          :key="index"
-          class="q-pa-md cursor-pointer week-item"
-          :class="{ 'bg-blue': selectedWeekIndex === index }"
-          @click="selectWeek(index)"
-        >
-          <div class="text-h6">{{ index + 1 }}.</div>
-          <div>{{ week.text }}</div>
-        </div>
+        <q-scroll-area class="full-height" ref="scrollAreaRef">
+          <div
+            v-for="(week, index) in weeks"
+            :key="index"
+            :ref="el => (weekRefs[week.reportNumber] = el)"
+            class="q-pa-md cursor-pointer week-item row no-wrap items-center"
+            :class="{ 'bg-info': selectedReportNumber === week.reportNumber }"
+            @click="selectWeek(week.reportNumber)"
+          >
+            <!-- Farbbalken links -->
+            <div
+              class="status-indicator"
+              :style="{ backgroundColor: getStatusColor(week) }"
+            >oi</div>
+
+            <!-- Textinhalt -->
+            <div class="q-ml-md">
+              <div class="text-h6">{{ week.reportNumber }}.</div>
+              <div>{{ week.weekStart }} - {{ week.weekEnd}}</div>
+            </div>
+          </div>
+        </q-scroll-area>
       </div>
 
       <!-- Hauptinhalt -->
@@ -148,7 +160,7 @@
           :readonly="!isEditing && !isAdmin"
           style="height: 200px"
         />
-        <div v-if="report.submitted" class="text-subtitle2 q-mt-md">
+        <div class="text-subtitle2 q-mt-md">
           Status:
           <q-badge :color="getStatusColor()" class="q-ml-sm">
             {{ getStatusText() }}
@@ -160,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { date } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
@@ -172,7 +184,31 @@ const $q = useQuasar();
 // << VARIABLES >>
 const isEditing = ref(false);
 const isAdmin = ref(false); // Hier sollte die tatsächliche Benutzerrolle eingesetzt werden
-const selectedWeekIndex = ref(0);
+const weeks = ref();
+const selectedReportNumber = ref(1);
+
+const scrollAreaRef = ref(null)
+const weekRefs = {} // Objekt, um jede Woche zu referenzieren
+watch(selectedReportNumber, async (newVal) => {
+  await nextTick()
+  scrollToSelectedWeek(newVal)
+})
+
+function scrollToSelectedWeek(reportNumber) {
+  const el = weekRefs[reportNumber]
+  const scrollArea = scrollAreaRef.value?.getScrollTarget?.()
+  if (el && scrollArea) {
+    const elTop = el.offsetTop
+    const elHeight = el.offsetHeight
+    const scrollHeight = scrollArea.clientHeight
+
+    const scrollPos = elTop - scrollHeight / 2 + elHeight / 2
+    scrollArea.scrollTo({
+      top: scrollPos,
+      behavior: 'instant'
+    })
+  }
+}
 const departmentOptions = [
   'IT-Abteilung',
   'Verwaltung',
@@ -226,35 +262,16 @@ const editorToolbar = [
   ['undo', 'redo']
 ];
 
-// Wochen generieren
-const generateWeeks = () => {
-  const weekArray = [];
-  const today = new Date();
-  const currentMonday = new Date(today);
-  const dayOfWeek = today.getDay();
+async function fetchDateRange() {
+  api.get('/api/report/getAllBadges').then(async response => {
+    if (response.data.length > 0) {
+      weeks.value = response.data;
 
-  // Setze auf vorherigen Montag
-  currentMonday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-
-  // Generiere 12 Wochen zurück
-  for (let i = 0; i < 12; i++) {
-    const weekStartDate = new Date(currentMonday);
-    weekStartDate.setDate(weekStartDate.getDate() - (i * 7));
-
-    const weekEndDate = new Date(weekStartDate);
-    weekEndDate.setDate(weekStartDate.getDate() + 6);
-
-    weekArray.push({
-      startDate: weekStartDate,
-      endDate: weekEndDate,
-      text: `${date.formatDate(weekStartDate, 'DD.MM.YYYY')} – ${date.formatDate(weekEndDate, 'DD.MM.YYYY')}`
-    });
-  }
-
-  return weekArray;
-};
-
-const weeks = ref(generateWeeks());
+      await selectWeek(response.data.length);
+      scrollToSelectedWeek(selectedReportNumber.value)
+    }
+  })
+}
 
 // Initialisiere mit einem leeren ReportDto
 const report = ref(createEmptyReport());
@@ -264,12 +281,12 @@ function createEmptyReport() {
   return new ReportDto(
     null,        // weekStart
     null,        // weekEnd
+    null,   // reportNumber
     '',          // weekText
     '',          // instructionText
     '',          // schoolText
     '',          // extraText
     '',          // department
-    null,        // reportNumber
     false,       // submitted
     false,       // approved
     false,       // rejected
@@ -278,14 +295,12 @@ function createEmptyReport() {
 }
 
 // Bericht laden für ausgewählte Woche
-const selectWeek = async (index) => {
-  selectedWeekIndex.value = index;
-  const selectedWeek = weeks.value[index];
-
+async function selectWeek(reportNumber) {
+  const selectedWeek = weeks.value[reportNumber - 1];
+  selectedReportNumber.value = reportNumber;
   try {
     // Versuchen Bericht zu laden
-    const weekStartStr = date.formatDate(selectedWeek.startDate, 'YYYY-MM-DD');
-    const response = await api.get(`/api/report/${weekStartStr}`);
+    const response = await api.get(`/api/report/${selectedWeek.weekStart}`);
 
     // Verwende die fromObject Methode des DTO
     report.value = ReportDto.fromObject(response.data);
@@ -304,12 +319,12 @@ const selectWeek = async (index) => {
     report.value = new ReportDto(
       date.formatDate(selectedWeek.startDate, 'YYYY-MM-DD'),
       date.formatDate(selectedWeek.endDate, 'YYYY-MM-DD'),
-      '',          // weekText
+      null,          // reportNumber
+      '',               // weekText
       '',          // instructionText
       '',          // schoolText
       '',          // extraText
       '',          // department
-      null,        // reportNumber
       false,       // submitted
       false,       // approved
       false,       // rejected
@@ -330,7 +345,7 @@ const selectWeek = async (index) => {
 const toggleEdit = () => {
   if (isEditing.value && report.value.reportNumber) {
     // Wenn Bearbeitung abgebrochen wird und Bericht existiert, lade Originalversion
-    selectWeek(selectedWeekIndex.value);
+    selectWeek(selectedReportNumber.value);
   } else {
     isEditing.value = !isEditing.value;
   }
@@ -398,22 +413,29 @@ const submitReport = async () => {
 };
 
 // Status-Anzeige
-const getStatusColor = () => {
-  if (report.value.approved) return 'positive';
-  if (report.value.rejected) return 'negative';
-  return 'warning';
-};
+function getStatusColor(week) {
+  if (week) {
+    if (week.approved) return 'green';
+    if (week.rejected) return 'red';
+    if (week.submitted) return 'yellow';
+    return 'grey';
+  }
+  if (report.value.approved) return 'green';
+  if (report.value.rejected) return 'red';
+  if (report.value.submitted) return 'yellow';
+  return 'grey';
+}
 
 const getStatusText = () => {
   if (report.value.approved) return 'Genehmigt';
   if (report.value.rejected) return 'Abgelehnt';
+  if (report.value.submitted) return 'Eingereicht';
   return 'Ausstehend';
 };
 
 // Initialisierung
-onMounted(() => {
-  // Lade ersten Bericht
-  selectWeek(0);
+onMounted(async() => {
+  await fetchDateRange();
 });
 </script>
 

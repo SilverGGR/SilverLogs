@@ -438,7 +438,7 @@ async function saveUser() {
         message: 'Benutzer erfolgreich aktualisiert'
       })
     } else if (isApprentice.value) {
-      apiUrl = '/api/authUser/admin/createApprentice'
+      apiUrl = '/api/apprentice/admin/createApprentice'
       await api.post(apiUrl, dtoData)
       $q.notify({
         type: 'positive',

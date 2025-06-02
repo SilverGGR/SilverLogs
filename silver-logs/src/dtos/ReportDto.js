@@ -2,7 +2,7 @@ export default class ReportDto {
   /**
    * @param {LocalDate} weekStart     Startdatum (Montag)
    * @param {LocalDate} weekEnd       Enddatum (Sonntag)
-   * @param {number} weekNumber       Kalenderwoche des Berichts
+   * @param {number} reportNumber     Für die Reihenfolge der Berichte
    * @param {string} weekText         Betriebliche Tätigkeiten
    * @param {string} instructionText  Unterweisungen und sowas
    * @param {string} schoolText       Themen des Berufsschulunterrichts
@@ -13,10 +13,10 @@ export default class ReportDto {
    * @param {boolean} rejected        Supervisor hat die Abgabe abgelehnt
    * @param {string} comment          Eventuelle Kommentare von Azubi/Supervisor
    */
-  constructor(weekStart, weekEnd, weekNumber,weekText, instructionText, schoolText, extraText, department, submitted, approved, rejected, comment) {
+  constructor(weekStart, weekEnd, reportNumber,weekText, instructionText, schoolText, extraText, department, submitted, approved, rejected, comment) {
     this.weekStart = weekStart;
     this.weekEnd = weekEnd;
-    this.weekNumber = weekNumber;
+    this.reportNumber = reportNumber;
     this.weekText = weekText;
     this.instructionText = instructionText;
     this.schoolText = schoolText;
@@ -32,7 +32,7 @@ export default class ReportDto {
     return new ReportDto(
       obj.weekStart,
       obj.weekEnd,
-      obj.weekNumber,
+      obj.reportNumber,
       obj.weekText,
       obj.instructionText,
       obj.schoolText,

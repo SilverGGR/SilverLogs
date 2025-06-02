@@ -10,6 +10,7 @@ import java.time.LocalDate;
 public class ReportBadgeDto {
     private LocalDate weekStart;
     private LocalDate weekEnd;
+    private Integer reportNumber;
     private Boolean submitted;
     private Boolean approved;
     private Boolean rejected;

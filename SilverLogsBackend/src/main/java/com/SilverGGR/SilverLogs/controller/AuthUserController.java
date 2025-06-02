@@ -92,10 +92,7 @@ public class AuthUserController {
         return ResponseEntity.ok(authUserService.createAuthUser(userDto));
     }
 
-    @PostMapping("/admin/createApprentice")
-    public ResponseEntity<AuthUserDto> createApprentice(@RequestBody ApprenticeDto userDto) {
-        return ResponseEntity.ok(authUserService.createApprentice(userDto));
-    }
+
 
     @PutMapping("/admin/update")
     public ResponseEntity<AuthUserDto> updateUser(@RequestBody AuthUserDto authUserDto) {

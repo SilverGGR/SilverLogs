@@ -2,7 +2,7 @@
   <q-page class="q-pa-md column bg-grey-1">
     <div class="row">
       <!-- Sidebar mit Wochen -->
-      <div class="col-2 bg-primary text-white">
+      <div class="col-2 shadow-4 text-white">
         <!-- Suchfelder -->
         <div class="q-pa-sm column gap-sm">
           <!-- Berichtnummer -->
@@ -47,8 +47,11 @@
             :key="index"
             :ref="el => (weekRefs[week.reportNumber] = el)"
             class="q-pa-md cursor-pointer week-item row no-wrap items-center"
-            :class="{ 'bg-info': selectedReportNumber === week.reportNumber }"
-            :style="{ borderLeft: '20px solid ' + getStatusColor(week), paddingLeft: 0 }"
+            :style="{
+              borderLeft: '20px solid ' + getStatusColor(week), paddingLeft: 0,
+              backgroundColor: selectedReportNumber === week.reportNumber ? getStatusColor(week) : 'white',
+              color: selectedReportNumber === week.reportNumber ? 'white' : 'black'
+            }"
             @click="selectWeek(week.reportNumber)"
           >
             <div class="q-ml-md">
@@ -62,24 +65,25 @@
       <!-- Hauptinhalt -->
       <div class="col q-px-md">
         <q-card class="q-pa-md">
-          <div style="display: flex; justify-content: flex-start; gap: 10px">
+          <div style="display: flex; justify-content: flex-start; gap: 16px">
             <q-btn
               :color="isEditing ? 'negative' : 'primary'"
-              :label="isEditing ? 'Abbrechen' : 'Bearbeiten'"
               :icon="isEditing ? 'close' : 'edit'"
               @click="toggleEdit"
             />
             <q-btn
               color="primary"
-              label="Speichern"
               icon="save"
               @click="saveReport"
               :disable="!isEditing"
             />
-            <q-btn color="primary" label="PDF" icon="picture_as_pdf" :disable="!report.reportNumber" />
+            <q-btn
+              color="primary"
+              icon="picture_as_pdf"
+              :disable="!report.reportNumber"
+            />
             <q-btn
               color="positive"
-              label="Abschicken"
               icon="send"
               @click="submitReport"
               :disable="isEditing || report.submitted || report.approved"
@@ -191,7 +195,7 @@
           type="textarea"
           filled
           autogrow
-          :readonly="!isEditing && !isAdmin"
+          :readonly="true"
           style="height: 200px"
         />
       </div>
@@ -211,7 +215,6 @@ const $q = useQuasar();
 
 // << VARIABLES >>
 const isEditing = ref(false);
-const isAdmin = ref(false); // Hier sollte die tatsächliche Benutzerrolle eingesetzt werden
 const weeks = ref([]);
 const selectedReportNumber = ref(1);
 const scrollAreaRef = ref(null)
@@ -365,7 +368,7 @@ async function selectWeek(reportNumber) {
 
   // Bearbeitungsmodus deaktivieren
   isEditing.value = false;
-};
+}
 
 // Bearbeitungsmodus umschalten
 const toggleEdit = () => {
@@ -480,7 +483,7 @@ onMounted(async() => {
 
 <style scoped>
 .week-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
   transition: background-color 0.3s;
 }
 .week-item:hover {

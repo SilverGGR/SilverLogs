@@ -3,50 +3,101 @@
     <div class="row">
       <!-- Sidebar mit Wochen -->
       <div class="col-2 bg-primary text-white">
-        <q-scroll-area class="full-height" ref="scrollAreaRef">
+        <!-- Suchfelder -->
+        <div class="q-pa-sm column gap-sm">
+          <!-- Berichtnummer -->
+          <q-input
+            dense
+            debounce="200"
+            filled
+            v-model="reportSearch"
+            placeholder="Berichtnummer"
+            type="number"
+            class="bg-white text-black"
+            clearable
+          >
+            <template #append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+
+          <!-- Datumsauswahl -->
+          <q-input
+            dense
+            filled
+            v-model="dateSearch"
+            placeholder="Datum wählen"
+            class="bg-white text-black"
+            clearable
+          >
+            <template #append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                  <q-date v-model="dateSearch" mask="YYYY-MM-DD" first-day-of-week="1" today-btn/>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </div>
+
+        <!-- Scrollbare Liste -->
+        <q-scroll-area :style="{ height: 'calc(100vh - 200px)' }" ref="scrollAreaRef">
           <div
-            v-for="(week, index) in weeks"
+            v-for="(week, index) in filteredWeeks"
             :key="index"
             :ref="el => (weekRefs[week.reportNumber] = el)"
             class="q-pa-md cursor-pointer week-item row no-wrap items-center"
             :class="{ 'bg-info': selectedReportNumber === week.reportNumber }"
+            :style="{ borderLeft: '20px solid ' + getStatusColor(week), paddingLeft: 0 }"
             @click="selectWeek(week.reportNumber)"
           >
-            <!-- Farbbalken links -->
-            <div
-              class="status-indicator"
-              :style="{ backgroundColor: getStatusColor(week) }"
-            >oi</div>
-
-            <!-- Textinhalt -->
             <div class="q-ml-md">
               <div class="text-h6">{{ week.reportNumber }}.</div>
-              <div>{{ week.weekStart }} - {{ week.weekEnd}}</div>
+              <div>{{ week.weekStart }} - {{ week.weekEnd }}</div>
             </div>
           </div>
         </q-scroll-area>
       </div>
 
       <!-- Hauptinhalt -->
-      <div class="col q-pa-md">
-        <div class="row items-center justify-between q-mb-md">
-          <div>
-            <span class="text-subtitle1">Abteilung:</span>
-            <q-select
-              v-model="report.department"
-              :options="departmentOptions"
-              dense
-              filled
-              class="q-ml-sm"
-              style="width: 200px"
+      <div class="col q-px-md">
+        <q-card class="q-pa-md">
+          <div style="display: flex; justify-content: flex-start; gap: 10px">
+            <q-btn
+              :color="isEditing ? 'negative' : 'primary'"
+              :label="isEditing ? 'Abbrechen' : 'Bearbeiten'"
+              :icon="isEditing ? 'close' : 'edit'"
+              @click="toggleEdit"
+            />
+            <q-btn
+              color="primary"
+              label="Speichern"
+              icon="save"
+              @click="saveReport"
               :disable="!isEditing"
             />
+            <q-btn color="primary" label="PDF" icon="picture_as_pdf" :disable="!report.reportNumber" />
+            <q-btn
+              color="positive"
+              label="Abschicken"
+              icon="send"
+              @click="submitReport"
+              :disable="isEditing || report.submitted || report.approved"
+            />
           </div>
-          <q-btn color="primary" label="PDF" icon="picture_as_pdf" :disable="!report.reportNumber" />
-        </div>
-
-        <q-card class="q-pa-md">
           <q-card-section>
+            <div>
+              <span class="text-subtitle1">Abteilung:</span>
+              <q-select
+                v-model="report.department"
+                :options="departmentOptions"
+                dense
+                filled
+                class="q-ml-sm"
+                style="width: 200px"
+                :disable="!isEditing"
+              />
+            </div>
             <q-expansion-item label="Betriebliche Tätigkeiten" default-opened>
               <q-editor
                 v-model="report.weekText"
@@ -124,33 +175,16 @@
             </q-expansion-item>
           </q-card-section>
         </q-card>
-
-        <div class="row q-mt-md justify-between items-center">
-          <q-btn
-            :color="isEditing ? 'negative' : 'primary'"
-            :label="isEditing ? 'Abbrechen' : 'Bearbeiten'"
-            :icon="isEditing ? 'close' : 'edit'"
-            @click="toggleEdit"
-          />
-          <q-btn
-            color="primary"
-            label="Speichern"
-            icon="save"
-            @click="saveReport"
-            :disable="!isEditing"
-          />
-          <q-btn
-            color="positive"
-            label="Abschicken"
-            icon="send"
-            @click="submitReport"
-            :disable="isEditing || report.submitted"
-          />
-        </div>
       </div>
 
       <!-- Kommentarbox -->
       <div class="col-2 q-pa-md">
+        <div class="text-subtitle2 q-mt-md">
+          Status:
+          <q-badge :color="getStatusColor()" class="q-ml-sm">
+            {{ getStatusText() }}
+          </q-badge>
+        </div>
         <div class="text-subtitle1 q-mb-sm">Kommentar:</div>
         <q-input
           v-model="report.comment"
@@ -160,19 +194,13 @@
           :readonly="!isEditing && !isAdmin"
           style="height: 200px"
         />
-        <div class="text-subtitle2 q-mt-md">
-          Status:
-          <q-badge :color="getStatusColor()" class="q-ml-sm">
-            {{ getStatusText() }}
-          </q-badge>
-        </div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { date } from 'quasar';
 import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
@@ -184,15 +212,13 @@ const $q = useQuasar();
 // << VARIABLES >>
 const isEditing = ref(false);
 const isAdmin = ref(false); // Hier sollte die tatsächliche Benutzerrolle eingesetzt werden
-const weeks = ref();
+const weeks = ref([]);
 const selectedReportNumber = ref(1);
-
 const scrollAreaRef = ref(null)
 const weekRefs = {} // Objekt, um jede Woche zu referenzieren
-watch(selectedReportNumber, async (newVal) => {
-  await nextTick()
-  scrollToSelectedWeek(newVal)
-})
+
+const reportSearch = ref('')
+const dateSearch = ref(null) // format: YYYY-MM-DD
 
 function scrollToSelectedWeek(reportNumber) {
   const el = weekRefs[reportNumber]
@@ -415,14 +441,14 @@ const submitReport = async () => {
 // Status-Anzeige
 function getStatusColor(week) {
   if (week) {
-    if (week.approved) return 'green';
-    if (week.rejected) return 'red';
-    if (week.submitted) return 'yellow';
-    return 'grey';
+    if (week.approved) return '#21BA45';
+    if (week.rejected) return '#C10015';
+    if (week.submitted) return '#F2C037';
+    return '#C0C0C0';
   }
-  if (report.value.approved) return 'green';
-  if (report.value.rejected) return 'red';
-  if (report.value.submitted) return 'yellow';
+  if (report.value.approved) return 'positive';
+  if (report.value.rejected) return 'negative';
+  if (report.value.submitted) return 'warning';
   return 'grey';
 }
 
@@ -432,6 +458,19 @@ const getStatusText = () => {
   if (report.value.submitted) return 'Eingereicht';
   return 'Ausstehend';
 };
+
+const filteredWeeks = computed(() => {
+  return weeks.value.filter(week => {
+    const matchReport =
+      !reportSearch.value || week.reportNumber.toString() === reportSearch.value
+
+    const matchDate =
+      !dateSearch.value ||
+      (dateSearch.value >= week.weekStart && dateSearch.value <= week.weekEnd)
+
+    return matchReport && matchDate
+  })
+})
 
 // Initialisierung
 onMounted(async() => {

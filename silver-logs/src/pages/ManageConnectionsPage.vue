@@ -1,118 +1,120 @@
 
 <template>
   <q-page padding>
-    <div class="row q-col-gutter-md">
-      <div class="col-12">
-        <h4 class="q-mt-none q-mb-md">Benutzer-Supervisor Verwaltung</h4>
-      </div>
+    <div class="q-pa-md">
+      <div class="row q-col-gutter-md">
+        <div class="col-12">
+          <div class="text-h5 q-mr-auto">Benutzer-Supervisor Verwaltung</div>
+        </div>
 
-      <!-- Apprentice Auswahl -->
-      <div class="col-12 col-md-6">
-        <q-card class="supervisor-card">
-          <q-card-section>
-            <div class="text-h6">Auszubildende</div>
-          </q-card-section>
-          <q-card-section>
-            <q-select
-              v-model="selectedApprentice"
-              :options="apprentices"
-              option-label="username"
-              label="Auszubildenden auswählen"
-              emit-value
-              map-options
-              clearable
-              @update:model-value="loadSupervisorsForApprentice"
-            >
-              <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps">
+        <!-- Apprentice Auswahl -->
+        <div class="col-12 col-md-6">
+          <q-card class="supervisor-card">
+            <q-card-section>
+              <div class="text-h6">Auszubildende</div>
+            </q-card-section>
+            <q-card-section>
+              <q-select
+                v-model="selectedApprentice"
+                :options="apprentices"
+                option-label="username"
+                label="Auszubildenden auswählen"
+                emit-value
+                map-options
+                clearable
+                @update:model-value="loadSupervisorsForApprentice"
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.username }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.firstname }} {{ scope.opt.lastname }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Supervisor Auswahl -->
+        <div class="col-12 col-md-6">
+          <q-card class="supervisor-card">
+            <q-card-section>
+              <div class="text-h6">Supervisors</div>
+            </q-card-section>
+            <q-card-section>
+              <q-select
+                v-model="selectedSupervisor"
+                :options="supervisors"
+                option-label="username"
+                label="Supervisor auswählen"
+                emit-value
+                map-options
+                clearable
+                :disable="!selectedApprentice"
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.username }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.firstname }} {{ scope.opt.lastname }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </q-card-section>
+            <q-card-section>
+              <q-btn
+                color="primary"
+                label="Supervisor zuweisen"
+                class="q-mr-sm"
+                :disable="!canAssignSupervisor"
+                @click="assignSupervisor"
+              />
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Zugewiesene Supervisors -->
+        <div class="col-12">
+          <q-card v-if="selectedApprentice">
+            <q-card-section>
+              <div class="text-h6">Zugewiesene Supervisors für {{ selectedApprentice?.username }}</div>
+            </q-card-section>
+            <q-card-section>
+              <q-list bordered separator>
+                <q-item v-for="supervisor in assignedSupervisors" :key="supervisor.id">
                   <q-item-section>
-                    <q-item-label>{{ scope.opt.username }}</q-item-label>
-                    <q-item-label caption>{{ scope.opt.firstname }} {{ scope.opt.lastname }}</q-item-label>
+                    <q-item-label>{{ supervisor.username }}</q-item-label>
+                    <q-item-label caption>{{ supervisor.firstname }} {{ supervisor.lastname }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      flat
+                      round
+                      color="negative"
+                      icon="delete"
+                      @click="removeSupervisor(supervisor)"
+                    />
                   </q-item-section>
                 </q-item>
-              </template>
-            </q-select>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <!-- Supervisor Auswahl -->
-      <div class="col-12 col-md-6">
-        <q-card class="supervisor-card">
-          <q-card-section>
-            <div class="text-h6">Supervisors</div>
-          </q-card-section>
-          <q-card-section>
-            <q-select
-              v-model="selectedSupervisor"
-              :options="supervisors"
-              option-label="username"
-              label="Supervisor auswählen"
-              emit-value
-              map-options
-              clearable
-              :disable="!selectedApprentice"
-            >
-              <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps">
+                <q-item v-if="assignedSupervisors.length === 0">
                   <q-item-section>
-                    <q-item-label>{{ scope.opt.username }}</q-item-label>
-                    <q-item-label caption>{{ scope.opt.firstname }} {{ scope.opt.lastname }}</q-item-label>
+                    <q-item-label>Keine Supervisors zugewiesen</q-item-label>
                   </q-item-section>
                 </q-item>
-              </template>
-            </q-select>
-          </q-card-section>
-          <q-card-section>
-            <q-btn
-              color="primary"
-              label="Supervisor zuweisen"
-              class="q-mr-sm"
-              :disable="!canAssignSupervisor"
-              @click="assignSupervisor"
-            />
-          </q-card-section>
-        </q-card>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
 
-      <!-- Zugewiesene Supervisors -->
-      <div class="col-12">
-        <q-card v-if="selectedApprentice">
-          <q-card-section>
-            <div class="text-h6">Zugewiesene Supervisors für {{ selectedApprentice?.username }}</div>
-          </q-card-section>
-          <q-card-section>
-            <q-list bordered separator>
-              <q-item v-for="supervisor in assignedSupervisors" :key="supervisor.id">
-                <q-item-section>
-                  <q-item-label>{{ supervisor.username }}</q-item-label>
-                  <q-item-label caption>{{ supervisor.firstname }} {{ supervisor.lastname }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    round
-                    color="negative"
-                    icon="delete"
-                    @click="removeSupervisor(supervisor)"
-                  />
-                </q-item-section>
-              </q-item>
-              <q-item v-if="assignedSupervisors.length === 0">
-                <q-item-section>
-                  <q-item-label>Keine Supervisors zugewiesen</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-        </q-card>
-      </div>
+      <!-- Loading Overlay -->
+      <q-inner-loading :showing="loading">
+        <q-spinner size="50px" color="primary" />
+      </q-inner-loading>
     </div>
-
-    <!-- Loading Overlay -->
-    <q-inner-loading :showing="loading">
-      <q-spinner size="50px" color="primary" />
-    </q-inner-loading>
   </q-page>
 </template>
 
@@ -137,11 +139,12 @@ const canAssignSupervisor = computed(() => {
 })
 
 // Methoden
-const loadApprentices = async () => {
+async function loadApprentices() {
   try {
     loading.value = true
     const response = await api.get('/api/authUser/apprentice/all')
     apprentices.value = response.data
+    console.log(response.data);
   } catch (error) {
     console.error('Fehler beim Laden der Auszubildenden:', error)
     Notify.create({

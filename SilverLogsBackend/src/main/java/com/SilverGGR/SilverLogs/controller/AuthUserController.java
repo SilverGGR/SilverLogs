@@ -119,6 +119,11 @@ public class AuthUserController {
         return ResponseEntity.ok(supervisorApprenticeService.getSupervisorsByApprentice(apprenticeUsername));
     }
 
+    @GetMapping("/apprentice-for-supervisors")
+    public ResponseEntity<List<AuthUserDto>> getApprenticeForSupervisor(@AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
+        return ResponseEntity.ok(supervisorApprenticeService.getApprenticesBySupervisor(authUserPrincipal.getUsername()));
+    }
+
     @PostMapping("/set-supervisor")
     public ResponseEntity<String> setSupervisor(@RequestParam String apprenticeUsername, @RequestParam String supervisorUsername) {
         supervisorApprenticeService.assignApprenticeToSupervisor(apprenticeUsername, supervisorUsername);

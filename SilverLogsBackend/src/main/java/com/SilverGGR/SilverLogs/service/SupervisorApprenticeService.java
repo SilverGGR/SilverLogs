@@ -56,13 +56,14 @@ public class SupervisorApprenticeService {
     /**
      * Liefert alle Apprentices, die einem Supervisor zugewiesen sind
      */
-    public List<Apprentice> getApprenticesBySupervisor(Long supervisorId) {
-        AuthUser supervisor = authUserRepository.findById(supervisorId)
-                .orElseThrow(() -> new EntityNotFoundException("Supervisor nicht gefunden"));
-
-        return mappingRepository.findBySupervisor(supervisor).stream()
+    @Transactional
+    public List<AuthUserDto> getApprenticesBySupervisor(String supervisorUsername) {
+        AuthUser supervisor = authUserRepository.findByUsername(supervisorUsername);
+        List<SupervisorApprenticeMapping> apprenticeList = mappingRepository.findBySupervisor(supervisor);
+        return apprenticeList.stream()
                 .map(SupervisorApprenticeMapping::getApprentice)
-                .collect(Collectors.toList());
+                .map(dtoMapper::convertToDtoWithImage)
+                .toList();
     }
 
     /**

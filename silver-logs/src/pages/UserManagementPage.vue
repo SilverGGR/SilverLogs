@@ -68,94 +68,6 @@
         </template>
       </q-table>
     </div>
-
-    <!-- Dialog für Benutzer anlegen/bearbeiten -->
-<!--    <q-dialog v-model="userDialogOpen" persistent>-->
-<!--      <q-card>-->
-<!--        <q-card-section>-->
-<!--          <div class="text-h6">{{ isEditMode ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}</div>-->
-<!--          <q-toggle v-model="isApprentice" label="Apprentice" />-->
-<!--        </q-card-section>-->
-
-<!--        <q-card-section class="q-pt-none">-->
-<!--          <q-form @submit="saveUser" class="q-gutter-md">-->
-<!--            <q-input-->
-<!--              v-model="userForm.username"-->
-<!--              label="Benutzername"-->
-<!--              :rules="[val => !!val || 'Benutzername wird benötigt']"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-model="userForm.firstname"-->
-<!--              label="Vorname"-->
-<!--              :rules="[val => !!val || 'Vorname wird benötigt']"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-model="userForm.lastname"-->
-<!--              label="Nachname"-->
-<!--              :rules="[val => !!val || 'Nachname wird benötigt']"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-model="userForm.email"-->
-<!--              label="E-Mail"-->
-<!--              type="email"-->
-<!--              :rules="[-->
-<!--                val => !!val || 'E-Mail wird benötigt',-->
-<!--                val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Ungültige E-Mail-Adresse'-->
-<!--              ]"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-model="userForm.phone"-->
-<!--              label="Telefon"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-model="userForm.department"-->
-<!--              label="Abteilung"-->
-<!--            />-->
-
-<!--            <q-select-->
-<!--              v-model="userForm.role"-->
-<!--              :options="roleOptions"-->
-<!--              label="Rolle"-->
-<!--              emit-value-->
-<!--              map-options-->
-<!--              :rules="[val => !!val || 'Rolle wird benötigt']"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-if="!isEditMode"-->
-<!--              v-model="userForm.password"-->
-<!--              label="Passwort"-->
-<!--              type="password"-->
-<!--              :rules="[val => !!val || 'Passwort wird benötigt']"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-if="isApprentice"-->
-<!--              v-model="userForm.startingDate"-->
-<!--              label="Startdatum"-->
-<!--              type="date"-->
-<!--            />-->
-
-<!--            <q-input-->
-<!--              v-if="isApprentice"-->
-<!--              v-model="userForm.endingDate"-->
-<!--              label="Enddatum"-->
-<!--              type="date"-->
-<!--            />-->
-<!--            <div class="row justify-end q-mt-md">-->
-<!--              <q-btn label="Abbrechen" color="grey" flat v-close-popup />-->
-<!--              <q-btn label="Speichern" type="submit" color="primary" class="q-ml-sm" />-->
-<!--            </div>-->
-<!--          </q-form>-->
-<!--        </q-card-section>-->
-<!--      </q-card>-->
-<!--    </q-dialog>-->
-
     <q-dialog v-model="userDialogOpen" persistent>
       <q-card>
         <q-card-section>
@@ -367,7 +279,6 @@ async function loadUsers() {
     loading.value = true
     const response = await api.get('/api/authUser/all')
     users.value = response.data
-    console.log(users.value)
   } catch (error) {
     console.error('Fehler beim Laden der Benutzer:', error)
     $q.notify({

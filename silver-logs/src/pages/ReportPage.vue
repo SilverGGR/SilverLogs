@@ -69,6 +69,7 @@
             <q-btn
               :color="isEditing ? 'negative' : 'primary'"
               :icon="isEditing ? 'close' : 'edit'"
+              :disable="report.submitted || report.approved"
               @click="toggleEdit"
             />
             <q-btn
@@ -291,13 +292,15 @@ const editorToolbar = [
   ['undo', 'redo']
 ];
 
-async function fetchDateRange() {
+async function fetchDateRange(scroll) {
   api.get('/api/report/getAllBadges').then(async response => {
     if (response.data.length > 0) {
       weeks.value = response.data;
 
-      await selectWeek(response.data.length);
-      scrollToSelectedWeek(selectedReportNumber.value)
+      if (scroll) {
+        await selectWeek(response.data.length);
+        scrollToSelectedWeek(selectedReportNumber.value)
+      }
     }
   })
 }
@@ -371,14 +374,32 @@ async function selectWeek(reportNumber) {
 }
 
 // Bearbeitungsmodus umschalten
-const toggleEdit = () => {
+function toggleEdit() {
   if (isEditing.value && report.value.reportNumber) {
-    // Wenn Bearbeitung abgebrochen wird und Bericht existiert, lade Originalversion
-    selectWeek(selectedReportNumber.value);
+    // Zeige Bestätigungsdialog
+    $q.dialog({
+      title: 'Bearbeitung abbrechen',
+      message: 'Möchten Sie die Bearbeitung wirklich abbrechen? Alle ungespeicherten Änderungen gehen verloren.',
+      cancel: {
+        label: 'Abbrechen',
+        color: 'grey',
+        flat: true
+      },
+      ok: {
+        label: 'OK',
+        color: 'negative'
+      },
+      persistent: true
+    }).onOk(() => {
+      // Bei OK: Originalversion laden und Bearbeitungsmodus beenden
+      selectWeek(selectedReportNumber.value);
+    }).onCancel(() => {
+      // Bei Abbrechen: Nichts tun, Dialog schließt sich automatisch
+    });
   } else {
     isEditing.value = !isEditing.value;
   }
-};
+}
 
 // Bericht speichern
 const saveReport = async () => {
@@ -416,7 +437,7 @@ const submitReport = async () => {
   try {
     report.value.submitted = true;
     const response = await api.post('/api/report/save', report.value);
-
+    await fetchDateRange(false)
     // Verwende die fromObject Methode des DTO für die Antwortdaten
     report.value = ReportDto.fromObject(response.data);
 
@@ -447,7 +468,7 @@ function getStatusColor(week) {
     if (week.approved) return '#21BA45';
     if (week.rejected) return '#C10015';
     if (week.submitted) return '#F2C037';
-    return '#C0C0C0';
+    return '#c0c0c0';
   }
   if (report.value.approved) return 'positive';
   if (report.value.rejected) return 'negative';
@@ -477,7 +498,7 @@ const filteredWeeks = computed(() => {
 
 // Initialisierung
 onMounted(async() => {
-  await fetchDateRange();
+  await fetchDateRange(true);
 });
 </script>
 
@@ -489,7 +510,7 @@ onMounted(async() => {
 .week-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-.bg-blue {
-  background-color: #1976D2 !important;
+.bg-grey {
+  background-color: #c0c0c0 !important;
 }
 </style>

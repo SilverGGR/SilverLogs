@@ -4,6 +4,7 @@ import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
 import com.SilverGGR.SilverLogs.dtos.ReportDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.Report;
+import com.SilverGGR.SilverLogs.repository.ApprenticeRepository;
 import com.SilverGGR.SilverLogs.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -65,8 +66,15 @@ public class ReportService {
     }
 
     public List<ReportBadgeDto> getAllBadges(String username) {
+        LocalDate today = LocalDate.now();
+        LocalDate nextWeek = today.plusWeeks(1);
+
         List<Report> reports = reportRepository.findAllByAuthUser_Username(username);
         return reports.stream()
+                .filter(report -> {
+                    // Include reports where the report week is within [today, nextWeek]
+                    return report.getWeekStart().isBefore(nextWeek);
+                })
                 .sorted(Comparator.comparing(Report::getReportNumber))
                 .map(dtoMapper::convertReportToBadgeDto)
                 .toList();
@@ -82,7 +90,7 @@ public class ReportService {
         }
 
         // Iteriere durch Wochen und erstelle leere Berichte
-        Integer count = 1;
+        int count = 1;
         while (!startDate.isAfter(endDate)) {
             Report report = new Report();
             report.setReportNumber(count++);

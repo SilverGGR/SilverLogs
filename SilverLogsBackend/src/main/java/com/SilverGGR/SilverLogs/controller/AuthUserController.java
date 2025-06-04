@@ -110,8 +110,8 @@ public class AuthUserController {
         return ResponseEntity.ok(authUserService.getAllApprentice());
     }
     @GetMapping("/supervisors/all")
-    public ResponseEntity<List<AuthUserDto>> getAllSupervisors() {
-        return ResponseEntity.ok(authUserService.getAllSupervisors());
+    public ResponseEntity<List<AuthUserDto>> getAllSupervisorsAndAdmins() {
+        return ResponseEntity.ok(authUserService.getAllSupervisorsAndAdmins());
     }
 
     @GetMapping("/supervisors-for-apprentice")

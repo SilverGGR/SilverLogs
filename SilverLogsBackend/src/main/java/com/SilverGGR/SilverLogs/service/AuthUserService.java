@@ -188,8 +188,8 @@ public class AuthUserService {
     }
 
     @Transactional(readOnly = true)
-    public List<AuthUserDto> getAllSupervisors() {
-        List<AuthUser> supervisorList = authUserRepo.findByRole(Role.SUPERVISOR);
+    public List<AuthUserDto> getAllSupervisorsAndAdmins() {
+        List<AuthUser> supervisorList = authUserRepo.findByRoleOrRole(Role.SUPERVISOR, Role.ADMIN);
         return supervisorList.stream()
                 .map(dtoMapper::convertUserToDto)
                 .toList();

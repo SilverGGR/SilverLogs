@@ -298,7 +298,7 @@ async function fetchDateRange(scroll) {
       weeks.value = response.data;
 
       if (scroll) {
-        await selectWeek(response.data.length);
+        await selectWeek(response.data.length -1);
         scrollToSelectedWeek(selectedReportNumber.value)
       }
     }

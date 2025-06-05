@@ -107,4 +107,26 @@ public class ReportService {
         }
     }
 
+    public ResponseEntity<?> setApproved(LocalDate weekStartDate, String username, String comment) {
+        Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, weekStartDate);
+        if (report == null) {
+            return ResponseEntity.notFound().build();
+        }
+        report.setComment(comment);
+        report.setApproved(true);
+        reportRepository.save(report);
+        return ResponseEntity.ok("Report approved successfully");
+    }
+
+    public ResponseEntity<?> setRejected(LocalDate weekStartDate, String username, String comment) {
+        Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, weekStartDate);
+        if (report == null) {
+            return ResponseEntity.notFound().build();
+        }
+        report.setComment(comment);
+        report.setRejected(true);
+        reportRepository.save(report);
+        return ResponseEntity.ok("Report rejected successfully");
+    }
+
 }

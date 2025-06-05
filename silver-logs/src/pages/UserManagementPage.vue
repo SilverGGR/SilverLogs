@@ -23,7 +23,7 @@
       <q-table
         :rows="filteredUsers"
         :columns="columns"
-        row-key="id"
+        :row-key="row => row.username"
         :loading="loading"
         :filter="filter"
         :pagination="pagination"
@@ -198,7 +198,7 @@
 </template>
 
 <script setup>
-//TODO: role value geht noch ned
+//TODO: role value geht noch ned (Innerhalb des Dialogs beim umschalten von Apprentice)
 import { ref, computed, onMounted, watch } from 'vue'
 import { api } from 'src/boot/axios'
 import { useQuasar } from 'quasar'

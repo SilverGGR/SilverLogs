@@ -1,5 +1,6 @@
 package com.SilverGGR.SilverLogs.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -25,9 +26,13 @@ public class Report {
     private LocalDate weekStart;
     private LocalDate weekEnd;
     private Integer reportNumber;
+    @Column(length = 10000)
     private String weekText;
+    @Column(length = 10000)
     private String instructionText;
+    @Column(length = 10000)
     private String schoolText;
+    @Column(length = 2000)
     private String extraText;
     private String department;
     private Boolean submitted;

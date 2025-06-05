@@ -26,8 +26,16 @@
         </q-select>
       </div>
 
+      <div class="q-mb-md">
+        <q-toggle
+          v-model="showOnlySubmitted"
+          label="Nur eingereichte Berichte anzeigen"
+          color="primary"
+        />
+      </div>
+
       <q-table
-        :rows="reports"
+        :rows="filteredReports"
         :columns="columns"
         :row-key="row => row.reportNumber"
         :loading="loading"
@@ -149,7 +157,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { api } from 'boot/axios.js';
 import { Notify } from 'quasar';
 
@@ -163,6 +171,7 @@ const selectedApprentice = ref();
 const selectedReport = ref();
 const showReportDialog = ref(false);
 const comment = ref('');
+const showOnlySubmitted = ref(false);
 
 const columns = [
   { name: 'reportNumber', label: 'Bericht Nr.', field: 'reportNumber', align: 'left', sortable: true },
@@ -298,6 +307,12 @@ async function rejectReport(report) {
   }
 }
 // << LIFECYCLE HOOKS >>
+const filteredReports = computed(() => {
+  if (!showOnlySubmitted.value) {
+    return reports.value;
+  }
+  return reports.value.filter(report => report.submitted && !report.approved && !report.rejected);
+})
 onMounted(async () => {
   await loadApprentices()
 })

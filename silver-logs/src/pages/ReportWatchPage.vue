@@ -140,15 +140,6 @@
                 />
               </div>
             </div>
-
-            <div v-if="selectedReport.comment" class="q-mt-md">
-              <q-card flat bordered>
-                <q-card-section>
-                  <div class="text-subtitle2">Kommentar</div>
-                  <div class="q-mt-sm">{{ selectedReport.comment }}</div>
-                </q-card-section>
-              </q-card>
-            </div>
           </q-card-section>
         </q-card>
       </q-dialog>

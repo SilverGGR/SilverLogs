@@ -78,26 +78,25 @@
               @click="saveReport"
               :disable="!isEditing"
             />
-            <q-btn
+            <q-btn-dropdown
               color="primary"
               icon="picture_as_pdf"
-              @click="generatePDFWithFormatting"
-              :disable="!report.reportNumber"
-            />
-            <q-btn
-              color="secondary"
-              icon="picture_as_pdf"
-              label="Alle PDFs"
-              @click="generateAllReportsPDF"
-              :disable="weeks.length === 0"
-            />
-            <q-btn
-              color="amber"
-              icon="picture_as_pdf"
-              label="Auswahl"
-              @click="showMultiSelectDialog"
-              :disable="weeks.length === 0"
-            />
+              :disable="!report.reportNumber && weeks.length === 0"
+            >
+              <q-list style="min-width: 150px;">
+                <q-item clickable @click="generatePDFWithFormatting">
+                  <q-item-section>Aktueller Bericht</q-item-section>
+                </q-item>
+
+                <q-item clickable @click="generateAllReportsPDF">
+                  <q-item-section>Alle Berichte</q-item-section>
+                </q-item>
+
+                <q-item clickable @click="showMultiSelectDialog">
+                  <q-item-section>Auswahl</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
 
             <q-btn
               color="positive"
@@ -808,7 +807,15 @@ function showMultiSelectDialog() {
       model: [],
       items: options
     },
-    cancel: true,
+    cancel: {
+      label: 'Abbrechen',
+      color: 'grey',
+      flat: true
+    },
+    ok: {
+      label: 'OK',
+      color: 'positive'
+    },
     persistent: true
   }).onOk(selectedReports => {
     if (selectedReports.length > 0) {

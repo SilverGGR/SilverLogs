@@ -565,145 +565,154 @@ function processHtmlContent(htmlContent) {
   return tempDiv.innerHTML;
 }
 
+// Vereinheitlichte PDF-Generierung mit Multi-Page Support
+async function generatePDFForReport(reportData, pdf = null) {
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '-9999px';
+  tempDiv.style.width = '800px';
+  tempDiv.style.padding = '0px 10px 5px 10px';
+  tempDiv.style.backgroundColor = 'white';
+  tempDiv.style.fontFamily = 'Arial, sans-serif';
+  tempDiv.style.fontSize = '12px';
+
+  tempDiv.innerHTML = `
+    <div>
+      <h1 style="font-size: 20px; margin-bottom: 10px; text-align: center;">
+        Ausbildungsnachweis - Nr. ${reportData.reportNumber}
+      </h1>
+      <div style="margin-bottom: 8px;"><strong>Auszubildende/r:</strong> ${authStore.user}</div>
+      <div style="margin-bottom: 8px;"><strong>Zeitraum:</strong> ${reportData.weekStart} - ${reportData.weekEnd}</div>
+      <div style="margin-bottom: 8px;"><strong>Abteilung:</strong> ${reportData.department || 'Nicht angegeben'}</div>
+      <div style="margin-bottom: 8px;"><strong>Status:</strong> ${getStatusText()}</div>
+    </div>
+
+    <div>
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
+        Betriebliche Tätigkeiten
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.weekText)}
+      </div>
+    </div>
+
+    <div>
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
+        Unterweisungen
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.instructionText)}
+      </div>
+    </div>
+
+    <div>
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
+        Berufsschule
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.schoolText)}
+      </div>
+    </div>
+
+    ${reportData.extraText ? `
+      <div>
+        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
+          Sonstiges
+        </h2>
+        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+          ${processHtmlContent(reportData.extraText)}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  document.body.appendChild(tempDiv);
+
+  // Canvas erstellen
+  const canvas = await html2canvas(tempDiv, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+  });
+
+  // Temporäres Element entfernen
+  document.body.removeChild(tempDiv);
+
+  // PDF erstellen falls noch nicht vorhanden
+  if (!pdf) {
+    pdf = new jsPDF('p', 'mm', 'a4');
+  }
+
+  const imgData = canvas.toDataURL('image/jpeg');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const canvasWidth = canvas.width;
+  const canvasHeight = canvas.height;
+
+  // Berechne die Skalierung (mm zu px Konvertierung)
+  const mmToPx = 3.78; // 1mm = 3.78px bei 96 DPI
+  const imgWidthMM = canvasWidth / mmToPx;
+  const imgHeightMM = canvasHeight / mmToPx;
+
+  // Skaliere das Bild, um in die PDF-Seite zu passen
+  const margin = 10;
+  const availableWidth = pdfWidth - 2 * margin;
+  const availableHeight = pdfHeight - 2 * margin;
+
+  let finalWidth = imgWidthMM;
+  let finalHeight = imgHeightMM;
+
+  // Skaliere falls nötig
+  if (imgWidthMM > availableWidth) {
+    const ratio = availableWidth / imgWidthMM;
+    finalWidth = availableWidth;
+    finalHeight = imgHeightMM * ratio;
+  }
+
+  // Zentriere das Bild horizontal
+  const x = (pdfWidth - finalWidth) / 2;
+  const y = margin;
+
+  // Wenn das Bild in eine Seite passt, füge es direkt hinzu
+  if (finalHeight <= availableHeight) {
+    pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+  } else {
+    // Teile das Bild auf mehrere Seiten auf
+    const pageHeight = availableHeight;
+    const totalPages = Math.ceil(finalHeight / pageHeight);
+
+    for (let i = 0; i < totalPages; i++) {
+      if (i > 0) {
+        pdf.addPage();
+      }
+
+      const sourceY = (i * pageHeight / finalHeight) * canvasHeight;
+      const sourceHeight = Math.min(pageHeight / finalHeight * canvasHeight, canvasHeight - sourceY);
+      const targetHeight = (sourceHeight / canvasHeight) * finalHeight;
+
+      // Erstelle ein Canvas für diesen Seitenausschnitt
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvasWidth;
+      pageCanvas.height = sourceHeight;
+      const pageCtx = pageCanvas.getContext('2d');
+
+      pageCtx.drawImage(canvas, 0, sourceY, canvasWidth, sourceHeight, 0, 0, canvasWidth, sourceHeight);
+
+      const pageImgData = pageCanvas.toDataURL('image/jpeg');
+      pdf.addImage(pageImgData, 'JPEG', x, y, finalWidth, targetHeight);
+    }
+  }
+
+  return pdf;
+}
+
+// Einzelnen Bericht als PDF generieren
 async function generatePDFWithFormatting() {
   try {
-    // Erstelle ein verstecktes div mit dem formatierten Inhalt
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '-9999px';
-    tempDiv.style.width = '800px';
-    tempDiv.style.padding = '0px 10px 5px 10px';
-    tempDiv.style.backgroundColor = 'white';
-    tempDiv.style.fontFamily = 'Arial, sans-serif';
-    tempDiv.style.fontSize = '12px';
-
-    tempDiv.innerHTML = `
-      <div>
-        <h1 style="font-size: 20px; margin-bottom: 10px; text-align: center;">
-          Ausbildungsnachweis - Nr. ${report.value.reportNumber}
-        </h1>
-        <div style="margin-bottom: 8px;"><strong>Auszubildende/r:</strong> ${authStore.user}</div>
-        <div style="margin-bottom: 8px;"><strong>Zeitraum:</strong> ${report.value.weekStart} - ${report.value.weekEnd}</div>
-        <div style="margin-bottom: 8px;"><strong>Abteilung:</strong> ${report.value.department || 'Nicht angegeben'}</div>
-        <div style="margin-bottom: 8px;"><strong>Status:</strong> ${getStatusText()}</div>
-      </div>
-
-      <div>
-        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
-          Betriebliche Tätigkeiten
-        </h2>
-        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-          ${processHtmlContent(report.value.weekText)}
-        </div>
-      </div>
-
-      <div>
-        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
-          Unterweisungen
-        </h2>
-        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-          ${processHtmlContent(report.value.instructionText)}
-        </div>
-      </div>
-
-      <div>
-        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
-          Berufsschule
-        </h2>
-        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-          ${processHtmlContent(report.value.schoolText)}
-        </div>
-      </div>
-
-      ${report.value.extraText ? `
-        <div>
-          <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
-            Sonstiges
-          </h2>
-          <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-            ${processHtmlContent(report.value.extraText)}
-          </div>
-        </div>
-      ` : ''}
-    `;
-
-    document.body.appendChild(tempDiv);
-
-    // Canvas erstellen
-    const canvas = await html2canvas(tempDiv, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-    });
-
-    // Temporäres Element entfernen
-    document.body.removeChild(tempDiv);
-
-    // PDF erstellen
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/jpeg');
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-
-    // Berechne die Skalierung (mm zu px Konvertierung)
-    const mmToPx = 3.78; // 1mm = 3.78px bei 96 DPI
-    const imgWidthMM = canvasWidth / mmToPx;
-    const imgHeightMM = canvasHeight / mmToPx;
-
-    // Skaliere das Bild, um in die PDF-Seite zu passen
-    const margin = 10;
-    const availableWidth = pdfWidth - 2 * margin;
-    const availableHeight = pdfHeight - 2 * margin;
-
-    let finalWidth = imgWidthMM;
-    let finalHeight = imgHeightMM;
-
-    // Skaliere falls nötig
-    if (imgWidthMM > availableWidth) {
-      const ratio = availableWidth / imgWidthMM;
-      finalWidth = availableWidth;
-      finalHeight = imgHeightMM * ratio;
-    }
-
-    // Zentriere das Bild horizontal
-    const x = (pdfWidth - finalWidth) / 2;
-    const y = margin;
-
-    // Wenn das Bild in eine Seite passt, füge es direkt hinzu
-    if (finalHeight <= availableHeight) {
-      pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
-    } else {
-      // Teile das Bild auf mehrere Seiten auf
-      const pageHeight = availableHeight;
-      const totalPages = Math.ceil(finalHeight / pageHeight);
-
-      for (let i = 0; i < totalPages; i++) {
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        const sourceY = (i * pageHeight / finalHeight) * canvasHeight;
-        const sourceHeight = Math.min(pageHeight / finalHeight * canvasHeight, canvasHeight - sourceY);
-        const targetHeight = (sourceHeight / canvasHeight) * finalHeight;
-
-        // Erstelle ein Canvas für diesen Seitenausschnitt
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvasWidth;
-        pageCanvas.height = sourceHeight;
-        const pageCtx = pageCanvas.getContext('2d');
-
-        pageCtx.drawImage(canvas, 0, sourceY, canvasWidth, sourceHeight, 0, 0, canvasWidth, sourceHeight);
-
-        const pageImgData = pageCanvas.toDataURL('image/jpeg');
-        pdf.addImage(pageImgData, 'JPEG', x, y, finalWidth, targetHeight);
-      }
-    }
+    const pdf = await generatePDFForReport(report.value);
 
     const fileName = `Ausbildungsnachweis_Woche_${report.value.reportNumber}.pdf`;
     pdf.save(fileName);
@@ -741,29 +750,36 @@ async function generateAllReportsPDF() {
       message: 'PDFs werden erstellt...'
     });
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    let isFirstReport = true;
+    let pdf = null;
+    let reportCount = 0;
 
     for (const week of weeks.value) {
       const reportData = await loadReportData(week.weekStart);
 
       if (reportData) {
-        if (!isFirstReport) {
+        if (reportCount > 0) {
           pdf.addPage();
         }
 
-        await addReportToPDF(pdf, reportData);
-        isFirstReport = false;
+        pdf = await generatePDFForReport(reportData, pdf, reportCount === 0);
+        reportCount++;
       }
     }
 
-    const fileName = `Alle_Ausbildungsnachweise_${authStore.user}.pdf`;
-    pdf.save(fileName);
+    if (pdf && reportCount > 0) {
+      const fileName = `Alle_Ausbildungsnachweise_${authStore.user}.pdf`;
+      pdf.save(fileName);
 
-    $q.notify({
-      type: 'positive',
-      message: `PDF mit allen Berichten erstellt (${weeks.value.length} Berichte)`
-    });
+      $q.notify({
+        type: 'positive',
+        message: `PDF mit allen Berichten erstellt (${reportCount} Berichte)`
+      });
+    } else {
+      $q.notify({
+        type: 'warning',
+        message: 'Keine Berichte zum Erstellen gefunden'
+      });
+    }
 
   } catch (error) {
     console.error('Fehler beim Erstellen der PDF:', error);
@@ -808,8 +824,8 @@ async function generateSelectedReportsPDF(selectedReportNumbers) {
       message: `${selectedReportNumbers.length} PDFs werden erstellt...`
     });
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    let isFirstReport = true;
+    let pdf = null;
+    let reportCount = 0;
 
     for (const reportNumber of selectedReportNumbers) {
       const week = weeks.value.find(w => w.reportNumber === reportNumber);
@@ -817,23 +833,30 @@ async function generateSelectedReportsPDF(selectedReportNumbers) {
         const reportData = await loadReportData(week.weekStart);
 
         if (reportData) {
-          if (!isFirstReport) {
+          if (reportCount > 0) {
             pdf.addPage();
           }
 
-          await addReportToPDF(pdf, reportData);
-          isFirstReport = false;
+          pdf = await generatePDFForReport(reportData, pdf, reportCount === 0);
+          reportCount++;
         }
       }
     }
 
-    const fileName = `Ausgewählte_Berichte_${selectedReportNumbers.length}_${authStore.user}.pdf`;
-    pdf.save(fileName);
+    if (pdf && reportCount > 0) {
+      const fileName = `Ausgewählte_Berichte_${reportCount}_${authStore.user}.pdf`;
+      pdf.save(fileName);
 
-    $q.notify({
-      type: 'positive',
-      message: `PDF mit ${selectedReportNumbers.length} Berichten erstellt`
-    });
+      $q.notify({
+        type: 'positive',
+        message: `PDF mit ${reportCount} Berichten erstellt`
+      });
+    } else {
+      $q.notify({
+        type: 'warning',
+        message: 'Keine Berichte zum Erstellen gefunden'
+      });
+    }
 
   } catch (error) {
     console.error('Fehler beim Erstellen der PDF:', error);
@@ -844,94 +867,6 @@ async function generateSelectedReportsPDF(selectedReportNumbers) {
   } finally {
     $q.loading.hide();
   }
-}
-
-// Hilfsfunktion um einen Bericht zur PDF hinzuzufügen
-async function addReportToPDF(pdf, reportData) {
-  const tempDiv = document.createElement('div');
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.left = '-9999px';
-  tempDiv.style.top = '-9999px';
-  tempDiv.style.width = '800px';
-  tempDiv.style.padding = '0px 10px 5px 10px';
-  tempDiv.style.backgroundColor = 'white';
-  tempDiv.style.fontFamily = 'Arial, sans-serif';
-  tempDiv.style.fontSize = '12px';
-
-  tempDiv.innerHTML = `
-    <div>
-      <h1 style="font-size: 20px; margin-bottom: 10px; text-align: center;">
-        Ausbildungsnachweis - Nr. ${reportData.reportNumber}
-      </h1>
-      <div style="margin-bottom: 8px;"><strong>Auszubildende/r:</strong> ${authStore.user}</div>
-      <div style="margin-bottom: 8px;"><strong>Zeitraum:</strong> ${reportData.weekStart} - ${reportData.weekEnd}</div>
-      <div style="margin-bottom: 8px;"><strong>Abteilung:</strong> ${reportData.department || 'Nicht angegeben'}</div>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
-        Betriebliche Tätigkeiten
-      </h2>
-      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-        ${processHtmlContent(reportData.weekText)}
-      </div>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
-        Unterweisungen
-      </h2>
-      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-        ${processHtmlContent(reportData.instructionText)}
-      </div>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
-        Berufsschule
-      </h2>
-      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-        ${processHtmlContent(reportData.schoolText)}
-      </div>
-    </div>
-
-    ${reportData.extraText ? `
-      <div style="margin-bottom: 15px;">
-        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
-          Sonstiges
-        </h2>
-        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
-          ${processHtmlContent(reportData.extraText)}
-        </div>
-      </div>
-    ` : ''}
-  `;
-
-  document.body.appendChild(tempDiv);
-
-  const canvas = await html2canvas(tempDiv, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#ffffff',
-    logging: false
-  });
-
-  document.body.removeChild(tempDiv);
-
-  const imgData = canvas.toDataURL('image/jpeg');
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
-
-  const margin = 10;
-  const availableWidth = pdfWidth - 2 * margin;
-  const availableHeight = pdfHeight - 2 * margin;
-
-  const imgWidth = availableWidth;
-  const imgHeight = (canvas.height * availableWidth) / canvas.width;
-
-  // Füge das Bild zur aktuellen Seite hinzu
-  pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, availableHeight));
 }
 
 // << LIFECYCLE HOOKS >>

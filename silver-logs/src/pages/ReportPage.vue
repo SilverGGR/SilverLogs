@@ -85,6 +85,21 @@
               :disable="!report.reportNumber"
             />
             <q-btn
+              color="secondary"
+              icon="picture_as_pdf"
+              label="Alle PDFs"
+              @click="generateAllReportsPDF"
+              :disable="weeks.length === 0"
+            />
+            <q-btn
+              color="amber"
+              icon="picture_as_pdf"
+              label="Auswahl"
+              @click="showMultiSelectDialog"
+              :disable="weeks.length === 0"
+            />
+
+            <q-btn
               color="positive"
               icon="send"
               @click="submitReport"
@@ -558,15 +573,14 @@ async function generatePDFWithFormatting() {
     tempDiv.style.left = '-9999px';
     tempDiv.style.top = '-9999px';
     tempDiv.style.width = '800px';
-    tempDiv.style.padding = '0px 20px 20px 20px';
+    tempDiv.style.padding = '0px 10px 5px 10px';
     tempDiv.style.backgroundColor = 'white';
     tempDiv.style.fontFamily = 'Arial, sans-serif';
     tempDiv.style.fontSize = '12px';
-    tempDiv.style.lineHeight = '1.5';
 
     tempDiv.innerHTML = `
       <div>
-        <h1 style="font-size: 24px; margin-bottom: 10px; text-align: center;">
+        <h1 style="font-size: 20px; margin-bottom: 10px; text-align: center;">
           Ausbildungsnachweis - Nr. ${report.value.reportNumber}
         </h1>
         <div style="margin-bottom: 8px;"><strong>Auszubildende/r:</strong> ${authStore.user}</div>
@@ -576,38 +590,38 @@ async function generatePDFWithFormatting() {
       </div>
 
       <div>
-        <h2 style="font-size: 16px; margin-bottom: 10px; color: #333; border-bottom: 2px solid #333;">
+        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
           Betriebliche Tätigkeiten
         </h2>
-        <div style="border: 1px solid #ccc; padding: 15px; min-height: 100px; background-color: #fafafa; line-height: 1.6;">
+        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
           ${processHtmlContent(report.value.weekText)}
         </div>
       </div>
 
       <div>
-        <h2 style="font-size: 16px; margin-bottom: 10px; color: #333; border-bottom: 2px solid #333;">
+        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
           Unterweisungen
         </h2>
-        <div style="border: 1px solid #ccc; padding: 15px; min-height: 100px; background-color: #fafafa; line-height: 1.6;">
+        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
           ${processHtmlContent(report.value.instructionText)}
         </div>
       </div>
 
       <div>
-        <h2 style="font-size: 16px; margin-bottom: 10px; color: #333; border-bottom: 2px solid #333;">
+        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
           Berufsschule
         </h2>
-        <div style="border: 1px solid #ccc; padding: 15px; min-height: 100px; background-color: #fafafa; line-height: 1.6;">
+        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
           ${processHtmlContent(report.value.schoolText)}
         </div>
       </div>
 
       ${report.value.extraText ? `
         <div>
-          <h2 style="font-size: 16px; margin-bottom: 10px; color: #333; border-bottom: 2px solid #333;">
+          <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 2px solid #333;">
             Sonstiges
           </h2>
-          <div style="border: 1px solid #ccc; padding: 15px; min-height: 100px; background-color: #fafafa; line-height: 1.6;">
+          <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
             ${processHtmlContent(report.value.extraText)}
           </div>
         </div>
@@ -623,7 +637,6 @@ async function generatePDFWithFormatting() {
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false,
-      letterRendering: true
     });
 
     // Temporäres Element entfernen
@@ -631,7 +644,7 @@ async function generatePDFWithFormatting() {
 
     // PDF erstellen
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/jpeg');
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -664,7 +677,7 @@ async function generatePDFWithFormatting() {
 
     // Wenn das Bild in eine Seite passt, füge es direkt hinzu
     if (finalHeight <= availableHeight) {
-      pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+      pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
     } else {
       // Teile das Bild auf mehrere Seiten auf
       const pageHeight = availableHeight;
@@ -687,8 +700,8 @@ async function generatePDFWithFormatting() {
 
         pageCtx.drawImage(canvas, 0, sourceY, canvasWidth, sourceHeight, 0, 0, canvasWidth, sourceHeight);
 
-        const pageImgData = pageCanvas.toDataURL('image/png');
-        pdf.addImage(pageImgData, 'PNG', x, y, finalWidth, targetHeight);
+        const pageImgData = pageCanvas.toDataURL('image/jpeg');
+        pdf.addImage(pageImgData, 'JPEG', x, y, finalWidth, targetHeight);
       }
     }
 
@@ -707,6 +720,218 @@ async function generatePDFWithFormatting() {
       message: 'Fehler beim Erstellen der PDF'
     });
   }
+}
+
+// Hilfsfunktion um einen einzelnen Bericht zu laden
+async function loadReportData(weekStart) {
+  try {
+    const response = await api.get(`/api/report/${weekStart}`);
+    return ReportDto.fromObject(response.data);
+  } catch (error) {
+    console.log(error)
+    // Leeren Bericht zurückgeben falls nicht gefunden
+    return null;
+  }
+}
+
+// PDF für alle Berichte generieren
+async function generateAllReportsPDF() {
+  try {
+    $q.loading.show({
+      message: 'PDFs werden erstellt...'
+    });
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let isFirstReport = true;
+
+    for (const week of weeks.value) {
+      const reportData = await loadReportData(week.weekStart);
+
+      if (reportData) {
+        if (!isFirstReport) {
+          pdf.addPage();
+        }
+
+        await addReportToPDF(pdf, reportData);
+        isFirstReport = false;
+      }
+    }
+
+    const fileName = `Alle_Ausbildungsnachweise_${authStore.user}.pdf`;
+    pdf.save(fileName);
+
+    $q.notify({
+      type: 'positive',
+      message: `PDF mit allen Berichten erstellt (${weeks.value.length} Berichte)`
+    });
+
+  } catch (error) {
+    console.error('Fehler beim Erstellen der PDF:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Fehler beim Erstellen der PDF'
+    });
+  } finally {
+    $q.loading.hide();
+  }
+}
+
+// Dialog für Auswahl mehrerer Berichte
+function showMultiSelectDialog() {
+  const options = weeks.value.map(week => ({
+    label: `Woche ${week.reportNumber}: ${week.weekStart} - ${week.weekEnd}`,
+    value: week.reportNumber,
+    color: getStatusColor(week)
+  }));
+
+  $q.dialog({
+    title: 'Berichte für PDF auswählen',
+    message: 'Wählen Sie die Berichte aus, die in die PDF aufgenommen werden sollen:',
+    options: {
+      type: 'checkbox',
+      model: [],
+      items: options
+    },
+    cancel: true,
+    persistent: true
+  }).onOk(selectedReports => {
+    if (selectedReports.length > 0) {
+      generateSelectedReportsPDF(selectedReports);
+    }
+  });
+}
+
+// PDF für ausgewählte Berichte generieren
+async function generateSelectedReportsPDF(selectedReportNumbers) {
+  try {
+    $q.loading.show({
+      message: `${selectedReportNumbers.length} PDFs werden erstellt...`
+    });
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let isFirstReport = true;
+
+    for (const reportNumber of selectedReportNumbers) {
+      const week = weeks.value.find(w => w.reportNumber === reportNumber);
+      if (week) {
+        const reportData = await loadReportData(week.weekStart);
+
+        if (reportData) {
+          if (!isFirstReport) {
+            pdf.addPage();
+          }
+
+          await addReportToPDF(pdf, reportData);
+          isFirstReport = false;
+        }
+      }
+    }
+
+    const fileName = `Ausgewählte_Berichte_${selectedReportNumbers.length}_${authStore.user}.pdf`;
+    pdf.save(fileName);
+
+    $q.notify({
+      type: 'positive',
+      message: `PDF mit ${selectedReportNumbers.length} Berichten erstellt`
+    });
+
+  } catch (error) {
+    console.error('Fehler beim Erstellen der PDF:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Fehler beim Erstellen der PDF'
+    });
+  } finally {
+    $q.loading.hide();
+  }
+}
+
+// Hilfsfunktion um einen Bericht zur PDF hinzuzufügen
+async function addReportToPDF(pdf, reportData) {
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '-9999px';
+  tempDiv.style.width = '800px';
+  tempDiv.style.padding = '0px 10px 5px 10px';
+  tempDiv.style.backgroundColor = 'white';
+  tempDiv.style.fontFamily = 'Arial, sans-serif';
+  tempDiv.style.fontSize = '12px';
+
+  tempDiv.innerHTML = `
+    <div>
+      <h1 style="font-size: 20px; margin-bottom: 10px; text-align: center;">
+        Ausbildungsnachweis - Nr. ${reportData.reportNumber}
+      </h1>
+      <div style="margin-bottom: 8px;"><strong>Auszubildende/r:</strong> ${authStore.user}</div>
+      <div style="margin-bottom: 8px;"><strong>Zeitraum:</strong> ${reportData.weekStart} - ${reportData.weekEnd}</div>
+      <div style="margin-bottom: 8px;"><strong>Abteilung:</strong> ${reportData.department || 'Nicht angegeben'}</div>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
+        Betriebliche Tätigkeiten
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.weekText)}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
+        Unterweisungen
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.instructionText)}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
+        Berufsschule
+      </h2>
+      <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+        ${processHtmlContent(reportData.schoolText)}
+      </div>
+    </div>
+
+    ${reportData.extraText ? `
+      <div style="margin-bottom: 15px;">
+        <h2 style="font-size: 14px; margin-bottom: 8px; color: #333; border-bottom: 1px solid #333;">
+          Sonstiges
+        </h2>
+        <div style="border: 1px solid #ccc; padding: 10px; min-height: 80px; background-color: #fafafa; line-height: 1.4;">
+          ${processHtmlContent(reportData.extraText)}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  document.body.appendChild(tempDiv);
+
+  const canvas = await html2canvas(tempDiv, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    logging: false
+  });
+
+  document.body.removeChild(tempDiv);
+
+  const imgData = canvas.toDataURL('image/jpeg');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  const margin = 10;
+  const availableWidth = pdfWidth - 2 * margin;
+  const availableHeight = pdfHeight - 2 * margin;
+
+  const imgWidth = availableWidth;
+  const imgHeight = (canvas.height * availableWidth) / canvas.width;
+
+  // Füge das Bild zur aktuellen Seite hinzu
+  pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, availableHeight));
 }
 
 // << LIFECYCLE HOOKS >>

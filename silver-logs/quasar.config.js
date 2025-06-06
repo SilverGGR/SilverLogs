@@ -110,6 +110,7 @@ export default defineConfig((ctx) => {
       plugins: [
         'Notify',
         'Dialog',
+        'Loading',
       ]
     },
 

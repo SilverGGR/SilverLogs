@@ -154,6 +154,7 @@
                   v-model="userForm.startingDate"
                   label="Startdatum"
                   type="date"
+                  :rules="[val => !!val || 'Startdatum wird benötigt']"
                 />
               </div>
 
@@ -162,6 +163,7 @@
                   v-model="userForm.endingDate"
                   label="Enddatum"
                   type="date"
+                  :rules="[val => !!val || 'Enddatum wird benötigt']"
                 />
               </div>
             </div>
@@ -348,24 +350,44 @@ async function saveUser() {
         type: 'positive',
         message: 'Benutzer erfolgreich aktualisiert'
       })
+      userDialogOpen.value = false
+      await loadUsers()
     } else if (isApprentice.value) {
       apiUrl = '/api/apprentice/admin/createApprentice'
-      await api.post(apiUrl, dtoData)
-      $q.notify({
-        type: 'positive',
-        message: 'Auszubildender erfolgreich erstellt'
+      await api.post(apiUrl, dtoData).then(() => {
+        $q.notify({
+          type: 'positive',
+          message: 'Auszubildender erfolgreich erstellt'
+        })
+        userDialogOpen.value = false
+        loadUsers()
+      }).catch(error => {
+        if (error.response.status === 409) {
+          $q.notify({
+            type: 'negative',
+            message: 'Benutzername bereits vergeben'
+          })
+        }
       })
     } else {
       apiUrl = '/api/authUser/admin/createUser'
-      await api.post(apiUrl, dtoData)
-      $q.notify({
-        type: 'positive',
-        message: 'Benutzer erfolgreich erstellt'
+      await api.post(apiUrl, dtoData).then(() => {
+        $q.notify({
+          type: 'positive',
+          message: 'Benutzer erfolgreich erstellt'
+        })
+        userDialogOpen.value = false
+        loadUsers()
+      }).catch(error => {
+        if (error.response.status === 409) {
+          $q.notify({
+            type: 'negative',
+            message: 'Benutzername bereits vergeben'
+          })
+        }
       })
-    }
 
-    userDialogOpen.value = false
-    await loadUsers()
+    }
   } catch (error) {
     $q.notify({
       type: 'negative',

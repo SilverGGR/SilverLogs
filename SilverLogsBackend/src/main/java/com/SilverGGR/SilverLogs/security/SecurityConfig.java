@@ -44,12 +44,12 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
-//                        .authenticationEntryPoint
-//                        ((request, response, authException) -> {
-//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
-//                            response.setContentType("application/json");
-//                            response.getWriter().write("{\"message\": \"Nicht authentifiziert\"}");
-//                        })
+                        .authenticationEntryPoint
+                        ((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Nicht authentifiziert\"}");
+                        })
                         .accessDeniedHandler(((request, response, accessDeniedException) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
                             response.setContentType("application/json");

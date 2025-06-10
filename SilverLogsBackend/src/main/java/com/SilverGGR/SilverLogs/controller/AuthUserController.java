@@ -8,6 +8,7 @@ import com.SilverGGR.SilverLogs.security.AuthUserPrincipal;
 import com.SilverGGR.SilverLogs.service.AuthUserService;
 import com.SilverGGR.SilverLogs.service.SupervisorApprenticeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -89,10 +90,11 @@ public class AuthUserController {
 
     @PostMapping("/admin/createUser")
     public ResponseEntity<AuthUserDto> createUser(@RequestBody AuthUserDto userDto) {
+        if (authUserService.checkIfUsernameExists(userDto.getUsername())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
         return ResponseEntity.ok(authUserService.createAuthUser(userDto));
     }
-
-
 
     @PutMapping("/admin/update")
     public ResponseEntity<AuthUserDto> updateUser(@RequestBody AuthUserDto authUserDto) {

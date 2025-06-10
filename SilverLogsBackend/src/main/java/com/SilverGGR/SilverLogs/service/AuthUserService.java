@@ -46,6 +46,10 @@ public class AuthUserService {
         return dtoMapper.convertUserToDto(authUserRepo.save(user));
     }
 
+    public Boolean checkIfUsernameExists(String username) {
+        return authUserRepo.existsByUsername(username);
+    }
+
     public String verify(AuthUserDto authUser) {
         try {
             Authentication authentication = authManager.authenticate(

@@ -3,6 +3,7 @@ package com.SilverGGR.SilverLogs.service;
 import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.repository.ApprenticeRepository;
+import com.SilverGGR.SilverLogs.repository.AuthUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ public class ApprenticeService {
 
     private final ReportService reportService;
     private final ApprenticeRepository apprenticeRepo;
+    private final AuthUserRepository authUserRepository;
     private final DtoMapper dtoMapper;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -35,6 +37,10 @@ public class ApprenticeService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public boolean checkIfUsernameExists(String username) {
+        return authUserRepository.existsByUsername(username);
     }
 
 }

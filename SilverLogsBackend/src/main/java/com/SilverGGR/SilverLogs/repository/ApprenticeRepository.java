@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface ApprenticeRepository extends JpaRepository<Apprentice, Long> {
 
     Apprentice findByUsername(String username);
+
+    boolean existsByUsername(String username);
+
 }

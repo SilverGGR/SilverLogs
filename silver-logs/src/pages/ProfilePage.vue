@@ -118,7 +118,8 @@ const updateProfile = async () => {
     const response = await api.put('/api/authUser/update', {
       email: profile.value.email,
       firstname: profile.value.firstname,
-      lastname: profile.value.lastname
+      lastname: profile.value.lastname,
+      username: profile.value.username
     });
     console.log(response);
 

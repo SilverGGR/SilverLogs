@@ -2,10 +2,13 @@ package com.SilverGGR.SilverLogs.service;
 
 import com.SilverGGR.SilverLogs.dtos.ApprenticeDto;
 import com.SilverGGR.SilverLogs.dtos.AuthUserDto;
+import com.SilverGGR.SilverLogs.dtos.DocumentBadgeDto;
+import com.SilverGGR.SilverLogs.dtos.DocumentDto;
 import com.SilverGGR.SilverLogs.dtos.ReportBadgeDto;
 import com.SilverGGR.SilverLogs.dtos.ReportDto;
 import com.SilverGGR.SilverLogs.entity.Apprentice;
 import com.SilverGGR.SilverLogs.entity.AuthUser;
+import com.SilverGGR.SilverLogs.entity.Document;
 import com.SilverGGR.SilverLogs.entity.Report;
 import com.SilverGGR.SilverLogs.enums.Role;
 import org.springframework.stereotype.Service;
@@ -321,4 +324,24 @@ public class DtoMapper {
         dto.setRejected(Boolean.TRUE.equals(report.getRejected()));
         return dto;
     }
+
+    public DocumentDto convertDocumentToDto(Document document) {
+        if (document == null) return null;
+        DocumentDto dto = new DocumentDto();
+        dto.setId(document.getId());
+        dto.setFileContent(document.getFileContent());
+        dto.setFileName(document.getFileName());
+        dto.setFileType(document.getFileType());
+        return dto;
+    }
+
+    public DocumentBadgeDto convertDocumentToBadgeDto(Document document) {
+        if (document == null) return null;
+        DocumentBadgeDto dto = new DocumentBadgeDto();
+        dto.setId(document.getId());
+        dto.setFileName(document.getFileName());
+        dto.setFileType(document.getFileType());
+        return dto;
+    }
+
 }

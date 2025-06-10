@@ -22,13 +22,14 @@
 
     <q-drawer
       v-model="leftDrawerOpen"
+      show-if-above
       bordered
     >
       <q-list>
         <q-item-label
           header
         >
-          Essential Links
+          Navigation
         </q-item-label>
 
         <EssentialLink
@@ -55,12 +56,6 @@ import { useAuthStore } from 'stores/auth.js';
 const authStore = useAuthStore();
 const linksList = [
   {
-    title: 'Home',
-    caption: 'Zur Startseite',
-    icon: 'home',
-    link: '/'
-  },
-  {
     title: 'Profil',
     caption: 'Profil anzeigen und bearbeiten',
     icon: 'person',
@@ -79,11 +74,11 @@ onMounted(() => {
     linksList.push({
       title: 'Benutzer',
       caption: 'Benutzer anzeigen und bearbeiten',
-      icon: 'supervisor_account',
+      icon: 'groups',
       link: '/user'
     },
     {
-      title: 'Manager',
+      title: 'Verwaltung',
       caption: 'Ausbilder und Auszubildende verwalten',
       icon: 'supervisor_account',
       link: '/manage-connections'
@@ -93,15 +88,27 @@ onMounted(() => {
     linksList.push({
       title: 'Berichte',
       caption: 'Berichte einsehen',
-      icon: 'description',
+      icon: 'article',
       link: '/report-watch'
+    },
+    {
+     title: 'Dokumente',
+     caption: 'Dokumente einsehen',
+     icon: 'description',
+     link: '/documents-watch'
     })
   } else {
     linksList.push({
       title: 'Berichte',
       caption: 'Berichte erstellen und bearbeiten',
-      icon: 'description',
+      icon: 'article',
       link: '/report'
+    },
+    {
+      title: 'Dokumente',
+      caption: 'Dokumente erstellen und bearbeiten',
+      icon: 'description',
+      link: '/documents'
     })
   }
 })

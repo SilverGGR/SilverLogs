@@ -76,7 +76,7 @@ public class AuthUserService {
                 return ResponseEntity.badRequest().body("Nur Bilddateien sind erlaubt");
             }
 
-            // Größenbeschränkung (z. B. 10 MB)
+            // Größenbeschränkung
             if (file.getSize() > 2 * 1024 * 1024) {
                 return ResponseEntity.badRequest().body("Datei darf nicht größer als 10MB sein");
             }

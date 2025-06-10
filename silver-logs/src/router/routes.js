@@ -30,6 +30,15 @@ const routes = [
         path: '/user',
         component: () => import('pages/UserManagementPage.vue'),
         meta: { requiredRoles: ['ADMIN'] }
+      },
+      {
+        path: '/documents',
+        component: () => import('pages/DokumentPage.vue'),
+      },
+      {
+        path: '/documents-watch',
+        component: () => import('pages/DokumentWatchPage.vue'),
+        meta: { requiredRoles: ['SUPERVISOR', 'ADMIN'] }
       }
     ]
   },

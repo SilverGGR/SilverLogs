@@ -17,10 +17,7 @@
     <q-menu :v-model="showing" anchor="bottom right" self="top right">
       <q-list style="min-width: 100px">
         <q-item clickable v-close-popup>
-          <q-item-section @click="router.push('/')">Home</q-item-section>
-        </q-item>
-        <q-item clickable v-close-popup>
-          <q-item-section @click="router.push('/profile')">Benutzereinstellungen</q-item-section>
+          <q-item-section @click="router.push('/profile')">Profil</q-item-section>
         </q-item>
         <q-separator />
 

@@ -72,7 +72,7 @@
       <q-card>
         <q-card-section>
           <div class="text-h6">{{ isEditMode ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}</div>
-          <q-toggle v-model="isApprentice" label="Apprentice" />
+          <q-toggle v-model="isApprentice" label="Apprentice" :disable="isEditMode"/>
         </q-card-section>
 
         <q-card-section class="q-pt-none q-pd-md">
@@ -83,6 +83,7 @@
                   v-model="userForm.username"
                   label="Benutzername"
                   :rules="[val => !!val || 'Benutzername wird benötigt']"
+                  :disable="isEditMode"
                 />
               </div>
 

@@ -73,7 +73,7 @@ public class ReportService {
         return reports.stream()
                 .filter(report -> {
                     // Include reports where the report week is within [today, nextWeek]
-                    return report.getWeekStart().isBefore(nextWeek);
+                    return !report.getWeekStart().isAfter(nextWeek);
                 })
                 .sorted(Comparator.comparing(Report::getReportNumber))
                 .map(dtoMapper::convertReportToBadgeDto)

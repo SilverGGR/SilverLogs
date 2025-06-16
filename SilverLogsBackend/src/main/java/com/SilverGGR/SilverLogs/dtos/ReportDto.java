@@ -20,4 +20,5 @@ public class ReportDto {
     private Boolean approved;
     private Boolean rejected;
     private String comment;
+    private String approvedBy;
 }

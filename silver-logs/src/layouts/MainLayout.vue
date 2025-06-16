@@ -106,7 +106,7 @@ onMounted(() => {
     },
     {
       title: 'Dokumente',
-      caption: 'Dokumente erstellen und bearbeiten',
+      caption: 'Dokumente hochladen und einsehen',
       icon: 'description',
       link: '/documents'
     })

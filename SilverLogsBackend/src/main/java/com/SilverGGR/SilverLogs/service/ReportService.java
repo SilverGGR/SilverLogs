@@ -107,13 +107,14 @@ public class ReportService {
         }
     }
 
-    public ResponseEntity<?> setApproved(LocalDate weekStartDate, String username, String comment) {
+    public ResponseEntity<?> setApproved(LocalDate weekStartDate, String username, String comment, String approvedByUsername) {
         Report report = reportRepository.findByAuthUser_UsernameAndWeekStart(username, weekStartDate);
         if (report == null) {
             return ResponseEntity.notFound().build();
         }
         report.setComment(comment);
         report.setApproved(true);
+        report.setApprovedBy(approvedByUsername);
         reportRepository.save(report);
         return ResponseEntity.ok("Report approved successfully");
     }

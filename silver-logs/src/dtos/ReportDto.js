@@ -12,8 +12,9 @@ export default class ReportDto {
    * @param {boolean} approved        Supervisor hat die Abgabe genehmigt
    * @param {boolean} rejected        Supervisor hat die Abgabe abgelehnt
    * @param {string} comment          Eventuelle Kommentare von Azubi/Supervisor
+   * @param {string} approvedBy       Supervisor that approved this report
    */
-  constructor(weekStart, weekEnd, reportNumber,weekText, instructionText, schoolText, extraText, department, submitted, approved, rejected, comment) {
+  constructor(weekStart, weekEnd, reportNumber,weekText, instructionText, schoolText, extraText, department, submitted, approved, rejected, comment, approvedBy) {
     this.weekStart = weekStart;
     this.weekEnd = weekEnd;
     this.reportNumber = reportNumber;
@@ -26,6 +27,7 @@ export default class ReportDto {
     this.approved = approved;
     this.rejected = rejected;
     this.comment = comment;
+    this.approvedBy = approvedBy;
   }
 
   static fromObject(obj) {
@@ -41,7 +43,8 @@ export default class ReportDto {
       obj.submitted,
       obj.approved,
       obj.rejected,
-      obj.comment
+      obj.comment,
+      obj.approvedBy
     );
   }
 }

@@ -53,8 +53,8 @@ public class ReportController {
     }
 
     @PostMapping("/approve/{weekStart}/{username}")
-    public ResponseEntity<?> approveReport(@PathVariable LocalDate weekStart, @PathVariable String username, @RequestBody Map<String, String> body) {
-        return reportService.setApproved(weekStart, username, body.get("comment"));
+    public ResponseEntity<?> approveReport(@PathVariable LocalDate weekStart, @PathVariable String username, @RequestBody Map<String, String> body, @AuthenticationPrincipal AuthUserPrincipal authUserPrincipal) {
+        return reportService.setApproved(weekStart, username, body.get("comment"), authUserPrincipal.getUsername());
     }
 
     @PostMapping("/reject/{weekStartDate}/{username}")

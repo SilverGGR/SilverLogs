@@ -205,8 +205,12 @@
           <q-badge :color="getStatusColor()" class="q-ml-sm">
             {{ getStatusText() }}
           </q-badge>
+          <div v-if="report.approved">
+            Angenommen von: <br>
+            {{ report.approvedBy }}
+          </div>
         </div>
-        <div class="text-subtitle1 q-mb-sm">Kommentar:</div>
+        <div class="text-subtitle1 q-mb-sm q-mt-sm">Kommentar:</div>
         <q-input
           v-model="report.comment"
           type="textarea"
@@ -585,6 +589,7 @@ async function generatePDFForReport(reportData, pdf = null) {
       <div style="margin-bottom: 8px;"><strong>Zeitraum:</strong> ${reportData.weekStart} - ${reportData.weekEnd}</div>
       <div style="margin-bottom: 8px;"><strong>Abteilung:</strong> ${reportData.department || 'Nicht angegeben'}</div>
       <div style="margin-bottom: 8px;"><strong>Status:</strong> ${getStatusText()}</div>
+      <div style="margin-bottom: 8px;"><strong>Angenommen von:</strong> ${reportData.approvedBy || ''}</div>
     </div>
 
     <div>

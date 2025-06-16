@@ -56,15 +56,15 @@
                 </q-form>
               </q-card-section>
 
-              <q-card-section class="text-center q-pa-sm">
-                <p class="text-grey-6">Noch kein Account?</p>
-                <q-btn
-                  flat
-                  color="primary"
-                  label="Registrieren"
-                  to="/register"
-                />
-              </q-card-section>
+<!--              <q-card-section class="text-center q-pa-sm">-->
+<!--                <p class="text-grey-6">Noch kein Account?</p>-->
+<!--                <q-btn-->
+<!--                  flat-->
+<!--                  color="primary"-->
+<!--                  label="Registrieren"-->
+<!--                  to="/register"-->
+<!--                />-->
+<!--              </q-card-section>-->
             </q-card>
           </div>
         </div>

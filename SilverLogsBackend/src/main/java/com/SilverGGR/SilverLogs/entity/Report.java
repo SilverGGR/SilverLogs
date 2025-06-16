@@ -39,6 +39,7 @@ public class Report {
     private Boolean approved;
     private Boolean rejected;
     private String comment;
+    private String approvedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auth_user_id")

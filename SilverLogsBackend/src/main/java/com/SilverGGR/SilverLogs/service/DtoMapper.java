@@ -295,6 +295,7 @@ public class DtoMapper {
         dto.setApproved(report.getApproved());
         dto.setRejected(report.getRejected());
         dto.setComment(report.getComment());
+        dto.setApprovedBy(report.getApprovedBy());
         return dto;
     }
 
@@ -310,6 +311,7 @@ public class DtoMapper {
         report.setApproved(dto.getApproved());
         report.setRejected(dto.getRejected());
         report.setComment(dto.getComment());
+        report.setApprovedBy(dto.getApprovedBy());
         return report;
     }
 
